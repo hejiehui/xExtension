@@ -1,11 +1,13 @@
 <idea-plugin>
   <id>com.xrosstools.idea.extension</id>
   <name>Xross Tools Extension</name>
-  <version>1.0.0</version>
+  <version>2025.1.1</version>
   <vendor email="he_jiehui@163.com" url="https://www.xrosstools.com">Xross Tools</vendor>
+  <product-descriptor code="PXTENSION" release-date="20250826" release-version="20251"/>
 
   <description><![CDATA[
-      Xross Tools Extension extends xross tools, such as <em>xunit, xstate, xdecision, xbehavior and xflow</em>, with additional tools from editor toolbar.<br>
+      Xross Tools Extension provides addons to x-series tools, such as <em>xunit, xstate, xdecision, xbehavior and xflow</em>.<br>
+      This plugin depends on com.xrosstools.idea.gef since version 1.5.0.<br>
     ]]></description>
 
   <change-notes><![CDATA[
@@ -13,7 +15,7 @@
     ]]>
   </change-notes>
 
-  <idea-version since-build="173.0"/>
+  <idea-version since-build="183.6156.11"/>
 
   <depends>com.intellij.modules.lang</depends>
   <depends>com.intellij.modules.java</depends>

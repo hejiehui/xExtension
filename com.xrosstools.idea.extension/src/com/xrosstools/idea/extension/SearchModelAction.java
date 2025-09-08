@@ -29,6 +29,7 @@ import java.util.List;
 public class SearchModelAction extends AnAction {
     private static final String TITLE = "Search";
     private static final String MESSAGE = "Text";
+    private static final String NODE_SEPARATOR = "/";
 
     private EditorPanel editorPanel;
 
@@ -54,7 +55,7 @@ public class SearchModelAction extends AnAction {
 
         List<Entry> found = new ArrayList<>();
         if(dialog.getExitCode() == 0) {
-            search(dialog.getInputString(), found, editorPanel.getTreeRoot());
+            search(dialog.getInputString(), found, "", editorPanel.getTreeRoot());
             if(found.isEmpty())
                 Messages.showErrorDialog("No model found", "Error");
             else
@@ -62,33 +63,44 @@ public class SearchModelAction extends AnAction {
         }
     }
 
-    private void search(String text, List<Entry> found, AbstractTreeEditPart part) {
+    private void search(String text, List<Entry> found, String parent, AbstractTreeEditPart part) {
         if(part == null)
             return;
 
+        parent += part.getText();
         Object model = part.getModel();
-        if(model instanceof IPropertySource && contains(text, (IPropertySource)model)) {
-            Entry entry = new Entry();
-            entry.model = model;
-            entry.name = part.getText();
-            found.add(entry);
+        if(model instanceof IPropertySource) {
+            String props = matchProperties(text, (IPropertySource)model);
+            if(props != null) {
+                Entry entry = new Entry();
+                entry.model = model;
+                entry.name = parent + props;
+                found.add(entry);
+            }
         }
 
+        parent += NODE_SEPARATOR;
         for(Object child: part.getChildren()) {
             if(child != null && child instanceof AbstractTreeEditPart)
-                search(text, found, (AbstractTreeEditPart)child);
+                search(text, found, parent, (AbstractTreeEditPart)child);
         }
     }
 
-    private boolean contains(String text, IPropertySource model) {
+    private String matchProperties(String text, IPropertySource model) {
+        List<String> props = new ArrayList<>();
         for(IPropertyDescriptor descriptor: model.getPropertyDescriptors()){
             String category = descriptor.getCategory();
             Object value = category == null ? model.getPropertyValue(descriptor.getId()) : model.getPropertyValue(category, descriptor.getId());
-            if(value != null && value.toString().contains(text))
-                return true;
+            if(value != null && value.toString().contains(text)) {
+                String id = descriptor.getId().toString();
+                if(category == null)
+                    props.add(id);
+                else
+                    props.add(String.format("%s.%s", category, id));
+            }
         }
 
-        return false;
+        return props.size() == 0 ? null : props.toString();
     }
 
     private class Entry {

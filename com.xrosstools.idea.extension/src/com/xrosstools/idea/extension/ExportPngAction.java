@@ -6,10 +6,8 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.UIUtil;
 import com.xrosstools.idea.gef.EditorPanel;
 import com.xrosstools.idea.gef.actions.AbstractCodeGenerator;
@@ -25,7 +23,7 @@ public class ExportPngAction extends AnAction {
     private EditorPanel editorPanel;
 
     public ExportPngAction(EditorPanel editorPanel) {
-        super("Export", "Export diagram as model to PDF", ExtensionIcons.EXPORT_PDF);
+        super("Export", "Export diagram to PNG file", ExtensionIcons.EXPORT_PDF);
         this.editorPanel = editorPanel;
     }
 
@@ -34,7 +32,7 @@ public class ExportPngAction extends AnAction {
         savePanelAsPNG(anActionEvent.getProject(), editorPanel.getUnitPanel());
     }
 
-    public static void savePanelAsPNG(Project project, JPanel panel) {
+    public void savePanelAsPNG(Project project, JPanel panel) {
         // 1. 获取面板尺寸（确保面板已显示在屏幕上）
         int width = panel.getWidth();
         int height = panel.getHeight();
@@ -51,19 +49,10 @@ public class ExportPngAction extends AnAction {
         panel.printAll(g2d);  // 关键：将整个面板内容绘制到图像上
         g2d.dispose();       // 释放资源
 
-        saveImageWithDialog(project, image, "");
+        saveImageWithDialog(project, image, editorPanel.getFile().getNameWithoutExtension());
     }
 
-    /**
-     * 保存 BufferedImage 到用户选择的 PNG 文件
-     * @param project 当前项目（可为 null）
-     * @param image 要保存的图像
-     * @param defaultName 默认文件名（不含扩展名）
-     * @return 保存成功返回 true，失败返回 false
-     */
-    public static boolean saveImageWithDialog(@NotNull Project project,
-                                              @NotNull BufferedImage image,
-                                              @NotNull String defaultName) {
+    private boolean saveImageWithDialog(Project project,BufferedImage image,String defaultName) {
         // 1. 创建文件选择描述符（仅选择目录）
         FileChooserDescriptor descriptor = FileChooserDescriptorFactory
                 .createSingleFolderDescriptor()
@@ -75,7 +64,7 @@ public class ExportPngAction extends AnAction {
         if (selectedDir == null) return false; // 用户取消
 
         // 3. 弹出文件名输入对话框
-        String fileName = showFileNameDialog(project, defaultName);
+        String fileName = AbstractCodeGenerator.getFileName(project, "PNG file name", defaultName);
         if (fileName == null || fileName.trim().isEmpty()) return false; // 用户取消
 
         // 4. 确保文件名以 .png 结尾
@@ -90,8 +79,8 @@ public class ExportPngAction extends AnAction {
             // 6. 检查文件是否已存在
             if (targetFile.exists()) {
                 int overwrite = Messages.showYesNoDialog(
-                        "文件已存在，是否覆盖？",
-                        "确认覆盖",
+                        "File already exists, overwrite?",
+                        "Confirm overwrite",
                         Messages.getQuestionIcon()
                 );
                 if (overwrite != Messages.YES) return false;
@@ -101,31 +90,8 @@ public class ExportPngAction extends AnAction {
             ImageIO.write(image, "PNG", targetFile);
             return true;
         } catch (IOException e) {
-            Messages.showErrorDialog("保存失败: " + e.getMessage(), "错误");
+            Messages.showErrorDialog("Failed to save: " + e.getMessage(), "Error");
             return false;
         }
-    }
-
-    /**
-     * 显示带默认值的文件名输入对话框
-     * @param defaultName 默认文件名
-     * @return 用户输入的文件名或 null（用户取消）
-     */
-    private static String showFileNameDialog(Project project, String defaultName) {
-        return Messages.showInputDialog(
-                project,
-                "Enter file name:",
-                "PNG file name",
-                Messages.getQuestionIcon(),
-                defaultName,
-                new InputValidator(){
-                    public boolean checkInput(String input) {
-                        return input != null && !input.trim().isEmpty();
-                    }
-                    public boolean canClose(String input) {
-                        return checkInput(input);
-                    }
-
-                });
     }
 }
