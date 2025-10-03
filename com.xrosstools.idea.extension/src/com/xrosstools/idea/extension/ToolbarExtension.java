@@ -2,9 +2,9 @@ package com.xrosstools.idea.extension;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.xrosstools.idea.gef.ExtensionAdapter;
+import com.xrosstools.idea.gef.extensions.ToolbarExtensionAdapter;
 
-public class ToolbarExtension extends ExtensionAdapter {
+public class ToolbarExtension extends ToolbarExtensionAdapter {
     @Override
     public void extendToolbar(ActionGroup toolbar) {
         DefaultActionGroup actionGroup = (DefaultActionGroup)toolbar;

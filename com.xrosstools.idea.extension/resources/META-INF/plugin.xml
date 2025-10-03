@@ -22,11 +22,26 @@
   <depends>com.xrosstools.idea.gef</depends>
 
   <extensions defaultExtensionNs="com.xrosstools.idea.gef">
-    <xrossExtension implementation ="com.xrosstools.idea.extension.ToolbarExtension"/>
+    <toolbarExtension implementation ="com.xrosstools.idea.extension.ToolbarExtension"/>
+    <generateModelExtension implementation ="com.xrosstools.idea.extension.modelgen.CozeGenerateModelExtension"/>
+  </extensions>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <projectService serviceImplementation="com.xrosstools.idea.extension.modelgen.XrossToolsBotConfig"/>
   </extensions>
 
   <actions>
-    <!-- Add your actions here -->
+    <action id="Xross.TokenBot.Config"
+            class="com.xrosstools.idea.extension.modelgen.TokenBotConfigAction"
+            text="Configure Token &amp; Bot ID"
+            description="Update authentication token and Bot ID">
+      <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Xross.TokenBot.Wizard"/>
+    </action>
+    <action id="Xross.TokenBot.Wizard"
+            class="com.xrosstools.idea.extension.modelgen.CreateBotWizardAction"
+            text="Create Bot Wizard"
+            description="Simple Bot Configuration Wizard">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+    </action>
   </actions>
-
 </idea-plugin>

@@ -22,7 +22,8 @@
   <depends>com.xrosstools.idea.gef</depends>
 
   <extensions defaultExtensionNs="com.xrosstools.idea.gef">
-    <xrossExtension implementation ="com.xrosstools.idea.extension.ToolbarExtension"/>
+    <toolbarExtension implementation ="com.xrosstools.idea.extension.ToolbarExtension"/>
+    <generateModelExtension implementation ="com.xrosstools.idea.extension.CozeGenerateModelExtension"/>
   </extensions>
 
   <actions>
