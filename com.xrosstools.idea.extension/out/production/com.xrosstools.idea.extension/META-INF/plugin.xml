@@ -1,13 +1,13 @@
 <idea-plugin>
   <id>com.xrosstools.idea.extension</id>
   <name>Xross Tools Extension</name>
-  <version>2025.1.1</version>
+  <version>2025.2.1</version>
   <vendor email="he_jiehui@163.com" url="https://www.xrosstools.com">Xross Tools</vendor>
-  <product-descriptor code="PXTENSION" release-date="20250826" release-version="20251"/>
+  <product-descriptor code="PXTENSION" release-date="20251018" release-version="20252"/>
 
   <description><![CDATA[
       Xross Tools Extension provides addons to x-series tools, such as <em>xunit, xstate, xdecision, xbehavior and xflow</em>.<br>
-      This plugin depends on com.xrosstools.idea.gef since version 1.5.0.<br>
+      This plugin depends on com.xrosstools.idea.gef since version 1.6.0.<br>
     ]]></description>
 
   <change-notes><![CDATA[
@@ -23,11 +23,25 @@
 
   <extensions defaultExtensionNs="com.xrosstools.idea.gef">
     <toolbarExtension implementation ="com.xrosstools.idea.extension.ToolbarExtension"/>
-    <generateModelExtension implementation ="com.xrosstools.idea.extension.CozeGenerateModelExtension"/>
+    <generateModelExtension implementation ="com.xrosstools.idea.extension.modelgen.CozeGenerateModelExtension"/>
+  </extensions>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationService serviceImplementation="com.xrosstools.idea.extension.modelgen.CozeAgentConfig"/>
   </extensions>
 
   <actions>
-    <!-- Add your actions here -->
+    <action id="Xross.TokenBot.Config"
+            class="com.xrosstools.idea.extension.modelgen.ConfigAgentAction"
+            text="Configure Agent..."
+            description="Update authentication token and Bot ID">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </action>
+    <action id="Xross.TokenBot.Wizard"
+            class="com.xrosstools.idea.extension.modelgen.CreateAgentWizardAction"
+            text="Create Agent Wizard..."
+            description="Agent Configuration Wizard">
+      <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Xross.TokenBot.Config"/>
+    </action>
   </actions>
-
 </idea-plugin>

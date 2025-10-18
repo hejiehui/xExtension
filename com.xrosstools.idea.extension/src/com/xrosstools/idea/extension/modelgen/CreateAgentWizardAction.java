@@ -5,14 +5,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class TokenBotConfigAction extends AnAction {
+public class CreateAgentWizardAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-            TokenBotConfigDialog dialog = new TokenBotConfigDialog(project);
-            dialog.show();
+            CreateAgentWizard wizard = new CreateAgentWizard(project);
+            wizard.show();
         }
     }
 }

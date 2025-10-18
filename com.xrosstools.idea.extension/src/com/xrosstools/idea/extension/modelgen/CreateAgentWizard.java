@@ -1,13 +1,15 @@
 package com.xrosstools.idea.extension.modelgen;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
-public class CreateBotWizard extends DialogWrapper {
+public class CreateAgentWizard extends DialogWrapper {
     private final Project project;
     private JPanel cardsPanel;
     private CardLayout cardLayout;
@@ -16,15 +18,11 @@ public class CreateBotWizard extends DialogWrapper {
     private static final int TOTAL_STEPS = 4;
 
     // 预定义选项
-    private final String[] urls = CozeBotCreator.SITES;
+    private final String[] urls = CozeConstants.SITES;
 
-    private final String[] spaceIds = {
-            "space-001",
-            "space-002",
-            "space-003"
-    };
+    private Map<String, String> spaceIdMap;
 
-    private CozeBotCreator creator;
+    private CozeAgentCreator creator;
 
     // UI 组件
     private ComboBox<String> siteCombo;
@@ -32,10 +30,10 @@ public class CreateBotWizard extends DialogWrapper {
     private ComboBox<String> spaceIdCombo;
     private JLabel resultLabel;
 
-    public CreateBotWizard(Project project) {
+    public CreateAgentWizard(Project project) {
         super(project);
         this.project = project;
-        setTitle("Bot Configuration Wizard");
+        setTitle("Agent Configuration Wizard");
         setModal(true);
         init();
     }
@@ -57,7 +55,7 @@ public class CreateBotWizard extends DialogWrapper {
 
     private JPanel createStep1() {
         JPanel panel = new JPanel(new FlowLayout());
-        panel.add(new JLabel("Select AI Site:"));
+        panel.add(new JLabel("Select Site:"));
 
         siteCombo = new ComboBox<>(urls);
         siteCombo.setPreferredSize(new Dimension(200, 25));
@@ -78,9 +76,9 @@ public class CreateBotWizard extends DialogWrapper {
 
     private JPanel createStep3() {
         JPanel panel = new JPanel(new FlowLayout());
-        panel.add(new JLabel("Select Space ID:"));
+        panel.add(new JLabel("Select Space:"));
 
-        spaceIdCombo = new ComboBox<>(spaceIds);
+        spaceIdCombo = new ComboBox<>();
         spaceIdCombo.setPreferredSize(new Dimension(200, 25));
         panel.add(spaceIdCombo);
 
@@ -125,11 +123,16 @@ public class CreateBotWizard extends DialogWrapper {
         // 加载当前配置到相应步骤
         if (step == 0) {
             loadCurrentConfig();
+        }else if (step == 2) {
+            String site = ((String) siteCombo.getSelectedItem());
+            String token = tokenField.getText();
+            creator = new CozeAgentCreator(token, site);
+            loadSpaceList();
         }
     }
 
     private void loadCurrentConfig() {
-        XrossToolsBotConfig config = XrossToolsBotConfig.getInstance(project);
+        CozeAgentConfig config = CozeAgentConfig.getInstance();
 
         if (config.getSite() != null) {
             siteCombo.setSelectedItem(config.getSite());
@@ -139,6 +142,19 @@ public class CreateBotWizard extends DialogWrapper {
         }
         if (config.getSpaceId() != null) {
             spaceIdCombo.setSelectedItem(config.getSpaceId());
+        }
+    }
+
+    private void loadSpaceList() {
+        try {
+            spaceIdMap = creator.getSpaces();
+            spaceIdCombo.removeAllItems();
+            for(String id: spaceIdMap.keySet())
+                spaceIdCombo.addItem(id);
+        } catch (Exception e) {
+            String site = (String) siteCombo.getSelectedItem();
+            Messages.showErrorDialog(e.getMessage(),"Error");
+            close(CANCEL_EXIT_CODE);
         }
     }
 
@@ -161,7 +177,7 @@ public class CreateBotWizard extends DialogWrapper {
     private void createBot() {
         String site = (String) siteCombo.getSelectedItem();
         String token = tokenField.getText();
-        String spaceId = (String) spaceIdCombo.getSelectedItem();
+        String spaceId = spaceIdMap.get(spaceIdCombo.getSelectedItem());
 
         if (site == null || token.isEmpty() || spaceId == null) {
             resultLabel.setText("Please complete all previous steps first");
@@ -169,18 +185,26 @@ public class CreateBotWizard extends DialogWrapper {
         }
 
         // 模拟创建bot
-        String botId = "bot-" + System.currentTimeMillis();
+        String botId = null;
+        try {
+            botId = creator.createBot(spaceId);
+            creator.publishBot(botId);
+        } catch (Exception e) {
+            Messages.showErrorDialog("Failed to create bot:" + e.getMessage(), "Error");
+            close(CANCEL_EXIT_CODE);
+            return;
+        }
         resultLabel.setText("Bot created successfully! ID: " + botId);
 
         // 保存bot ID
-        XrossToolsBotConfig config = XrossToolsBotConfig.getInstance(project);
+        CozeAgentConfig config = CozeAgentConfig.getInstance();
         config.setBotId(botId);
     }
 
     private void saveConfig() {
-        XrossToolsBotConfig config = XrossToolsBotConfig.getInstance(project);
+        CozeAgentConfig config = CozeAgentConfig.getInstance();
 
-        config.setUrl((String) siteCombo.getSelectedItem());
+        config.setSite((String) siteCombo.getSelectedItem());
         config.setToken(tokenField.getText());
         config.setSpaceId((String) spaceIdCombo.getSelectedItem());
 

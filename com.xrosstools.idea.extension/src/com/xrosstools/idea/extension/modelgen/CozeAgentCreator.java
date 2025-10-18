@@ -16,40 +16,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CozeBotCreator {
-    private int id;
+public class CozeAgentCreator implements CozeConstants {
     private String apiUrl;
     private String promptFile;
     private String token;
-    private static final String MODEL_ID = "1706077826"; // 豆包模型 ID
     private static final Gson gson = new Gson();
 
-    public static final String[] SITES = {
-            "https://api.coze.com",
-            "https://api.coze.cn",
-    };
-
-    private static final String[] APIS = {
-            "https://www.coze.com",
-            "https://www.coze.cn",
-    };
-
-    private static final String[] PROMPTS = {
-            "xflowPrompt_EN.txt",
-            "xflowPrompt_CN.txt",
-    };
-
-    public CozeBotCreator(String token, String site) {
-        this.id = site.equals(SITES[0]) ? 0 : 1;
-        this.apiUrl = SITES[id];
-        promptFile = PROMPTS[id];
+    public CozeAgentCreator(String token, String site) {
+        this.apiUrl = getApiUrl(site);
+        promptFile = getPrompt(site);
         this.token = token;
     }
 
     public Map<String, String> getSpaces() throws Exception {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // 1. 构建请求 URL（支持分页参数 page_num 和 page_size）
-            String url = apiUrl + "/v1/workspaces?page_num=1&page_size=20";
+            String url = apiUrl + GET_SPACE_CMD;
             HttpGet request = new HttpGet(url);
 
             // 2. 添加授权 Header
@@ -74,14 +56,14 @@ public class CozeBotCreator {
     }
 
     private String readPrompt() throws Exception {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(promptFile);
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PROMPTS_ROOT + promptFile);
         return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }
 
     // 1. 创建智能体
     public String createBot(String spaceId) throws Exception {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost request = new HttpPost("https://api.coze.cn/v1/bot/create");
+            HttpPost request = new HttpPost(apiUrl + CREATE_CMD);
             request.setHeader("Authorization", "Bearer " + token);
             request.setHeader("Content-Type", "application/json");
 
@@ -91,7 +73,7 @@ public class CozeBotCreator {
             createRequest.name = "xflow modeler";
             createRequest.description = "Agent created by Xross Tools Extension";
             createRequest.prompt_info = new PromptInfo(readPrompt());
-            createRequest.model_info_config = new ModelInfoConfig(MODEL_ID);
+//            createRequest.model_info_config = new ModelInfoConfig(MODEL_ID);
 
             String requestBody = gson.toJson(createRequest);
             request.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
@@ -110,7 +92,7 @@ public class CozeBotCreator {
     // 2. 发布智能体
     public void publishBot(String botId) throws Exception {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost request = new HttpPost("https://api.coze.cn/v1/bot/publish");
+            HttpPost request = new HttpPost(apiUrl + PUBLISH_CMD);
             request.setHeader("Authorization", "Bearer " + token);
             request.setHeader("Content-Type", "application/json");
 
