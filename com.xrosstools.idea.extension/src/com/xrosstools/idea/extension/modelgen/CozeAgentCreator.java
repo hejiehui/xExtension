@@ -12,19 +12,31 @@ import org.apache.http.impl.client.HttpClients;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CozeAgentCreator implements CozeConstants {
+    private static final String PROMPT_SUFFIX = "Prompt.txt";
+    private static final String HEADER_FILE = "header" + PROMPT_SUFFIX;
+    private static Map<String, String> nameIdMap = new HashMap<>();
+
+    static {
+        nameIdMap.put(XROSS_UNIT, XUNIT);
+        nameIdMap.put(XROSS_DECISION, XDECISION);
+        nameIdMap.put(XROSS_STATE, XSTATE);
+        nameIdMap.put(XROSS_BEHAVIOR, XBEHAVIOR);
+        nameIdMap.put(XROSS_FLOW, XFLOW);
+    }
+
     private String apiUrl;
-    private String promptFile;
+    private String header;
     private String token;
     private static final Gson gson = new Gson();
 
     public CozeAgentCreator(String token, String site) {
         this.apiUrl = getApiUrl(site);
-        promptFile = getPrompt(site);
         this.token = token;
     }
 
@@ -55,13 +67,20 @@ public class CozeAgentCreator implements CozeConstants {
         }
     }
 
-    private String readPrompt() throws Exception {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PROMPTS_ROOT + promptFile);
+    private String readPrompt(String toolName) throws Exception {
+        if(header == null)
+            header = readFile(HEADER_FILE);
+
+        return header + readFile(nameIdMap.get(toolName) + PROMPT_SUFFIX);
+    }
+
+    private String readFile(String fileName) throws Exception {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PROMPTS_ROOT + fileName);
         return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }
 
     // 1. 创建智能体
-    public String createBot(String spaceId) throws Exception {
+    public String createBot(String spaceId, String toolName) throws Exception {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost request = new HttpPost(apiUrl + CREATE_CMD);
             request.setHeader("Authorization", "Bearer " + token);
@@ -70,9 +89,9 @@ public class CozeAgentCreator implements CozeConstants {
             // 构建请求体
             CreateBotRequest createRequest = new CreateBotRequest();
             createRequest.space_id = spaceId;
-            createRequest.name = "xflow modeler";
+            createRequest.name = toolName + " modeler";
             createRequest.description = "Agent created by Xross Tools Extension";
-            createRequest.prompt_info = new PromptInfo(readPrompt());
+            createRequest.prompt_info = new PromptInfo(readPrompt(toolName));
 //            createRequest.model_info_config = new ModelInfoConfig(MODEL_ID);
 
             String requestBody = gson.toJson(createRequest);

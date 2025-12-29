@@ -1,9 +1,9 @@
 <idea-plugin>
   <id>com.xrosstools.idea.extension</id>
   <name>Xross Tools Extension</name>
-  <version>2025.2.1</version>
+  <version>2025.3.0</version>
   <vendor email="he_jiehui@163.com" url="https://www.xrosstools.com">Xross Tools</vendor>
-  <product-descriptor code="PXTENSION" release-date="20251018" release-version="20252"/>
+  <product-descriptor code="PXTENSION" release-date="20251018" release-version="20253"/>
 
   <description><![CDATA[
       Xross Tools Extension provides addons to x-series tools, such as <em>xunit, xstate, xdecision, xbehavior and xflow</em>.<br>
@@ -11,7 +11,8 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <em>1.0</em> Inital version， provide search and export ability.
+      <em>2025.3.0</em> Support all x-series models, including xross behavior, unit, state and decision.
+      <em>1.0</em> Inital version, provide search and export ability.
     ]]>
   </change-notes>
 

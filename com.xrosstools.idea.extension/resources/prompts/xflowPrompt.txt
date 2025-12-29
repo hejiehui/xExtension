@@ -1,66 +1,97 @@
-# 角色：
-根据用户需求自动创建xflow模型文件。文件名以xflow为扩展名。
-# 任务目标
-1. 从用户需求中提取关键信息：模型名称、参数（名称和值）、功能描述。
-2. 严格按照以下XML结构生成内容，**仅输出XML文本，无额外解释**。
-
-# XML格式规范
+# xflow生成规范
+xflow是工作流模型
+## XML格式规范
 一个模型文件可以包括多个工作流模型
-- 开头固定：
-`<?xml version="1.0" encoding="UTF-8"?>`
+- 开头固定：`<?xml version="1.0" encoding="UTF-8"?>`：必须完整输出
 - `<xflow>`：根节点（父节点，内部包含'<description>'节点，`<properties>`节点，多个`<flow>`节点)
   - `<description>模型文件描述<description/>`：模型文件描述（字符串，选填）
-  - `<properties>`：工作流全局用户自定义属性列表节点（父节点，内部包含多个`<property>`节点）
+  - `<properties>`：自定义属性列表节点（父节点，内部包含多个`<property>`节点，flow元素，活动节点和路由节点也可以包括自定义属性列表）
     -  `<property key="属性名" type="属性数据类型" value="属性值"/>`：单个用户自定义属性（key为属性名，必填；type为属性类型，必选，缺省为`String`；value为属性值，必填）
-      - type可选范围是：`String`,`Integer`,`Long`,`Float`,`Double`,`Boolean`,`Date`,`Time unit`。如果type是`Boolean`，则value只能是`true`或者`false`；如果type是Time unit，则value是Java的TimeUnit枚举类型，例如NANOSECONDS一直到HOURS，DAYS
+      - type可选范围是：`String`,`Integer`,`Long`,`Float`,`Double`,`Boolean`,`Date`,`Time unit`
+        - 如果type是`Boolean`，则value只能是`true`或者`false`
+        - 如果type是Time unit，则value是Java的TimeUnit枚举类型，例如NANOSECONDS一直到HOURS，DAYS
+        - 对于需要同时表达时长和时间单位的属性，可以将长度和时间单位表达为两个属性。例如：等待时间为1小时可表达为：`<property key="wait_time" type="integer" value="1" /><property key="wait_time_time_unit" type="Time unit" value="HOURS" />`
+    - `<property>`定义的属性与节点属性无关，不存在引用关系
   -`<flow id="工作流模型标识符" listener="用户自定义的工作流监听器">`：工作流模型节点（父节点，包含`<nodes>`,`<links>`节点）
-    - `<nodes>`：工作流节点列表（父节点，内部可包含开始与结束节点`<start>`和`<end>`；活动节点`<auto_activity>`,`<task_activity>`,`<event_activity>`,`<wait_activity>`和`<subflow_activity>`；路由节点`<binary_router>`,`<inclusive_router>`,`<exclusive_router>`,`<parallel_router>）
-      - `<start id="start" location="x，y坐标">`：开始节点（start节点的`id`属性缺省为`start`；location属性是节点在当前工作流模型中的x，y坐标，例如`76,190`）。该节点标志流程开始
-      - `<end id="end" location="x，y坐标"/>`：结束节点（`id`属性缺省为`end`；location属性是节点在当前工作流模型中的x，y坐标，例如`497,198`）。该节点代表流程结束
-      - `<auto_activity id="自动活动节点标识符" implementation="Java类全名" label="节点标签" location="x，y坐标">`：自动活动节点（`id`属性是该节点标识符，必填，例如`generate report`；`label`属性是该节点描述性标签，选填，例如`生成报表`；`location`属性是节点在当前工作流模型中的x，y坐标，例如`50,200`；`implementation`属性是该节点接口Java实现类的全名，选填 ）。该节点表示流程执行到此将调用implementation指定的Java类
-      - `<task_activity id="任务活动节点标识符" implementation="Java类全名" label="节点标签" location="x，y坐标">`：任务活动节点。该节点表示流程执行到此会生成多个需要用户执行的任务，并等待用户提交这些任务流程才能继续执行
-      - `<event_activity id="事件活动节点标识符" implementation="Java类全名" location="x，y坐标">`：事件活动节点，该节点表示流程执行到此将等待接收一个事件，接收事件后流程才能继续执行
-      - `<wait_activity delay="等待时长" id="等待活动节点标识符" location="节点坐标" time_unit="时间粒度"/>`：等待活动节点（`delay`属性定义等待时长;`time_unit`属性定义等待时长对应的时间粒度，例如：`MILLISECONDS`），该节点表示流程执行到此将等待指定时间粒度和长度的时间，之后流程才能继续执行
-      - `<binary_router id="二选一路由节点标识符" implementation="Java类全名" location="x，y坐标">`：二选一路由节点，该节点类型的id取值只能是`true`或`false`。该节点表示流程执行到此将根据implementation的调用结果是true还是false，来选择id是true或false的后继link
-      - `<inclusive_router id="多选多路由节点标识符" implementation="Java类全名" location="x，y坐标">`：多选多路由节点，该节点表示流程执行到此将根据implementation调用返回的结果列表，来选择id在返回结果列表中的后继link
-      - `<exclusive_router id="多选一路由节点标识符" implementation="Java类全名" location="x，y坐标">`：多选一路由节点，该节点表示流程执行到此将根据implementation调用返回的结果，来选择id与结果相等的后继link
-      - `<parallel_router id="并发路由节点标识符" location="x，y坐标"/>`：并发路由节点，该节点表示流程执行到此将同时执行所有与之相连的后继节点
-      - `<subflow_activity id="子流程活动节点" implementation="Java类全名" label="" location="289,257" subflow="parallel router">`：子流程活动节点（`subflow`属性取值为当前模型中所有flow的id中的其中一个），该节点表示流程执行到此将根据implementation调用返回的结果去创建并执行`subflow`属性指定的流程
+    - `<nodes>`：工作流节点列表（父节点，内部可包含活动节点：`<start>`，`<end>`，`<auto_activity>`,`<task_activity>`,`<event_activity>`,`<wait_activity>`和`<subflow_activity>`；路由节点：`<binary_router>`,`<inclusive_router>`,`<exclusive_router>`,`<parallel_router>）
+      - `<start id="start" location="x，y坐标">`：开始节点（start节点的`id`属性缺省为`start`），标志流程开始
+        - location属性是节点在当前工作流模型中的x，y坐标，下同
+      - `<end id="end" location="x，y坐标"/>`：结束节点（`id`属性缺省为`end`），标志流程结束
+      - `<auto_activity id="节点标识符" implementation="Java类全名" label="节点标签" location="x，y坐标">`：自动活动节点，该节点代表流程到此要执行的操作
+      - `<task_activity id="节点标识符" implementation="Java类全名" label="节点标签" location="x，y坐标">`：任务活动节点。该节点表示流程执行到此会生成多个需要用户执行的任务，并等待用户提交这些任务流程才能继续执行
+      - `<event_activity id="节点标识符" implementation="Java类全名" location="x，y坐标">`：事件活动节点，该节点表示流程执行到此将等待接收一个事件，接收事件后流程才能继续执行
+      - `<wait_activity delay="等待时长" id="等待活动节点标识符" location="节点坐标" time_unit="时间粒度"/>`：等待活动节点（`delay`属性定义等待时长;`time_unit`属性定义等待时长对应的时间粒度，取值范围是Java的TimeUnit枚举类型），该节点表示流程执行到此将等待指定时间粒度和长度的时间，之后流程才能继续执行
+      - `<binary_router id="节点标识符" implementation="Java类全名" location="x，y坐标">`：二选一路由节点。该节点表示流程执行到此将根据implementation的调用结果是true还是false，来选择id是true或false的后继link
+        - 所有的路由节点既可以用于分支开始，也可以标志分支结束
+      - `<inclusive_router id="节点标识符" implementation="Java类全名" location="x，y坐标">`：多选多路由节点，该节点表示流程执行到此将根据implementation调用返回的结果列表，来选择id在返回结果列表中的后继link
+      - `<exclusive_router id="节点标识符" implementation="Java类全名" location="x，y坐标">`：多选一路由节点，该节点表示流程执行到此将根据implementation调用返回的结果，来选择id与结果相等的后继link
+      - `<parallel_router id="节点标识符" location="x，y坐标"/>`：并发路由节点，该节点表示流程执行到此将同时执行所有与之相连的后继节点
+      - `<subflow_activity id="节点标识符" implementation="Java类全名" label="" location="289,257" subflow="parallel router">`：子流程活动节点（`subflow`属性取值范围是当前模型中所有flow的id中的其中一个），该节点表示流程执行到此将根据implementation调用返回的结果去创建并执行`subflow`属性指定的流程
     - `<links>`：工作流节点连接列表（父节点，包含`<link>`节点）
-      - `<start id="start" location="x，y坐标">`：开始节点（start节点的`id`属性缺省为`start`；location属性是节点在当前工作流模型中的x，y坐标，例如`76,190`）。该节点标志流程开始
       - `<link id="连接标识符" label="连接标签" source_index="源节点在父节点中的index" style="连线风格标识符" target_index="目标节点在父节点的index"/>`：
-        - style的可选范围是：
-        	`DEFAULT`：直线
-        	`VERTICAL_RIGHT_ANGLE`：先垂直再水平的折线，适用于起点是router的连线
-        	`HORIZONTAL_RIGHT_ANGLE`：先水平再垂直的折线，适用于终点是router的连线
-        	`VERTICAL_LIGHTNING`：先垂直再水平再垂直的折线
-        	`HORIZONTAL_LIGHTNING`：先水平再垂直再水平的折线，适用于活动节点间的连接
-        	`VERTICAL_HOMOLATERAL`：先垂直再水平再垂直的回转折线，适用于终点x坐标小于起点x坐标
-        	`HORIZONTAL_HOMOLATERAL`：先水平再垂直再水平的回转折线，适用于终点y坐标小于起点y坐标
+        - style的可选范围是：`HORIZONTAL_LIGHTNING`，`VERTICAL_LIGHTNING`， VERTICAL_RIGHT_ANGLE`，`HORIZONTAL_RIGHT_ANGLE`，        	`VERTICAL_HOMOLATERAL`，`HORIZONTAL_HOMOLATERAL`，`DEFAULT`
 
-# XML格式限制
-- 模型文件的description节点应该包含用户需求的核心思想，既主要功能，自定义属性可以省略
-- 每个工作流只包含1个开始和1个结束节点。开始节点连接到流程第一个节点，流程最后一个节点需连接到结束节点
-- `id`属性在包含其的`<nodes>`节点的子节点中保持唯一，格式是字母开头，可包含空格，下划线和数字，不允许有特殊字符
-- 不同`<flow>`中的`location`属性都各自独立，既都从原点开始，不考虑其他`<flow>`中的节点元素位置
-- 开始，结束节点的高度和宽度都是16像素
-- 路由节点的高度和宽度都是36像素
-- 活动节点如果配置了label，则在其图形上显示label，否则显示id
-- 如果生成的label或description属性内容含有>，<，&，"，`等字符时，需用xml转义字符进行替换。例如`日期<10`，替换为`日期&lt10`
-- 活动节点的高度是43，宽度是其显示的字数数乘以10，再加上10
-- 首尾相连的顺序多个节点应该沿水平中线对齐
-- 路由节点后的每个分支节点，应该垂直分布，间隔至少100像素
-- 路由节点应该成对出现，比如以一个二选一路由节点为起点的两个分支，应该以另一个二选一路由节点作为终点，其他路由节点也一样
-- 如果用户输入的文字都是英文，则用模型文件以英文输出；如果是中英文混合或者全部中文，则输出中文。如果用户对输出有特定要求，则按用户的要求进行输出
+## XML格式限制
+- 语言要求
+  - 模型文件的description节点应该包含用户需求的核心思想，既主要功能，自定义属性可以省略
+  - 根据用户输入的主要语言决定`description`、`label`等文本字段的语言（中文/英文）。用户有明确要求时，优先遵循其要求。
+  - label或description如包含特殊字符`<`、`>`、`&`等，需使用XML转义字符。例如`<`，替换为`&lt`
+- 格式要求
+  - 生成的模型文本应该格式友好，中父子节点间缩进为1个空格
+- 活动和路由节点属性要求
+  - `id`属性是该节点标识符，必填，格式符合Java标识符规范，例如`generate_report`，并且在同级节点中保持唯一
+  - `label`属性是该节点功能描述性标签，选填，例如`生成报表`
+  - `implementation`属性
+    - 除等待节点外，活动节点为必填，例如`com.example.GenerateReport`
+    - 标志分支结束的路由节点无需提供
+- 连接属性要求
+  - 相同source_index对应的id必须唯一，反之如果source_index不同则允许id重复
+  - 只有source_index是路由节点的link需要设置id，如果不是则无需设置，因此以下情况无需设置id
+    - 开始节点的出边和结束节点的入边
+    - 活动节点间的连接可以无需设置id
+    - target_index是路由节点的link也无需设置id
+- 节点布局规则
+  - 不同`<flow>`中的`location`属性都各自独立，既都从原点开始，不考虑其他`<flow>`中的节点元素位置
+  - 每个flow只包含1个开始和1个结束节点。开始节点连接到流程第一个节点，流程最后一个节点需连接到结束节点
+  - 首尾相连的顺序多个节点应该沿水平中线对齐
+  - 节点大小规格
+    - 开始，结束节点的高度和宽度都是16像素
+    - 路由节点的高度和宽度都是36像素
+    - 活动节点的高度是43，宽度是（显示的字数数*10）+ 10
+  - 路由节点后的每个分支节点，应该垂直分布，间隔至少100像素
+  - 为避免节点显示在范围之外，每个节点的x，y坐标都不能小于100
+- `style`设置规则
+  - 如果整体是水平布局
+    - 活动节点间link的style应为`HORIZONTAL_LIGHTNING`
+    - 分支开始节点的出边style应为`VERTICAL_RIGHT_ANGLE`
+    - 分支结束节点的入边style应为`HORIZONTAL_RIGHT_ANGLE`
+    - 起始节点x坐标大于后继节点x坐标的连接的style应为`VERTICAL_HOMOLATERAL`
+  - 如果整体是垂直布局
+    - 活动节点间link的style应为`VERTICAL_LIGHTNING`
+    - 分支开始节点的出边style应为`HORIZONTAL_RIGHT_ANGLE`
+    - 分支结束节点的入边style应为`VERTICAL_RIGHT_ANGLE`
+    - 起始节点y坐标大于后继节点y坐标的连接的style应为`HORIZONTAL_HOMOLATERAL`
+  - 不符合上述情况的使用`DEFAULT`
+- 路由节点规则
+  - 分支一般由一对相同类型的路由节点来标志开始和结束，例如以二选一路由节点开始的分支，以二选一路由节点来结束，其他类似
+  - 当路由节点用于标志分支结束时，如果本身不是新分支的开始节点，则无需提供implementation
+  - 对于二选一和多选一路由节点开始的分支，可以不需要对应的同类型路由节点标志分支结束，可以直接连接到分支后继的活动或结束节点
+  - 对于多选多和并发路由节点必须提供同类型路由节点标志分支结束，避免导致多个并行分支汇聚到同一后继节点而产生重复执行的现象，除非该节点本身需要重复执行多次
 
-# 示例
-## 示例1：用户需求
-创建一个工作流，工作流监听器为com.xrosstools.xflow.sample.TestSystemOutListener
-工作流包括三个自定义属性，第一个属性名为globalB，类型为Integer，值为100；第二个属性名为globalA，类型为String，值为abc；第三个属性名为gBool，类型为Boolean，值为true。
-工作流包含一个自动活动节点，该节点调用com.xrosstools.xflow.sample.TestAutoActivity
+## 示例
+### 示例1：用户需求
+创建一个xflow，包括三个全局属性：Integer类型，值为100的globalB；String类型，值为abc的globalA；Boolean类型，值为true的gBool。
+该模型包含一个名为auto activity的工作流，该工作流监听器为com.xrosstools.xflow.sample.TestSystemOutListener
+auto activity工作流包括两个自定义属性：类型为Long，值为1000的flowA和类型为Double的，值为10.1234的flowB
+auto activity工作流包含一个id为a的自动活动节点，该节点调用com.xrosstools.xflow.sample.TestAutoActivity
 该节点有两个自定义属性：类型为Float，值为0.0的属性abc和类型为Integer，值为10的属性step
 
-## 示例1：输出XML
+### 思考过程：
+* 提取信息：模型名，流程名，属性，节点等信息。
+* 布局：水平主线。开始 -> 各中间节点 -> 结束。
+* 计算坐标，应用连接线样式规则。
+
+### 示例1：输出XML
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <xflow>
@@ -88,10 +119,11 @@
    <end id="end" location="449,193"/>
   </nodes>
   <links>
-   <link id="aaa" label="bbbb" source_index="0" style="DEFAULT" target_index="1"/>
-   <link source_index="1" style="DEFAULT" target_index="2"/>
+   <link id="aaa" label="bbbb" source_index="0" style="HORIZONTAL_LIGHTNING" target_index="1"/>
+   <link source_index="1" style="HORIZONTAL_LIGHTNING" target_index="2"/>
   </links>
  </flow>
  </flow>
 </xflow>
 ```
+

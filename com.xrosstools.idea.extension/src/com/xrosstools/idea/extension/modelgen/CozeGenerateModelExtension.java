@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 
 
 public class CozeGenerateModelExtension implements CozeConstants, GenerateModelExtension {
+    private static final Logger LOG = Logger.getInstance(CozeGenerateModelExtension.class);
     private static final String USER_ID = "xross_tools_user";
     private static final String TOKEN_HEADER = "Bearer ";
 
@@ -50,17 +52,39 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
     private static final Gson gson = new Gson();
 
     private String apiUrl;
-    private String botId;
     private String token;
+    private String modelType;
+    private String botId;
 
     @Override
     public boolean isGenerateModelSupported(String modelType) {
-        return "xflow".equalsIgnoreCase(modelType);
+        //Get agent config
+        CozeAgentConfig config = CozeAgentConfig.getInstance();
+        apiUrl = getApiUrl(config.getSite());
+        token = config.getToken();
+
+        this.modelType = modelType;
+        if(XUNIT.equals(modelType)) {
+            botId = config.getXunitBotId();
+        } else if(XSTATE.equals(modelType)) {
+            botId = config.getXstateBotId();
+        } else if(XDECISION.equals(modelType)) {
+            botId = config.getXdecisionBotId();
+        } else if(XBEHAVIOR.equals(modelType)) {
+            botId = config.getXbehaviorBotId();
+        } else if(XFLOW.equals(modelType)) {
+            botId = config.getXflowBotId();
+        } else
+            botId = null;
+
+        return botId != null;
     }
 
     @Override
     public void generateModel(String description, Consumer<String> callback) {
-        loadCnofig();
+        //Reload config in case of old version of GEF
+        isGenerateModelSupported(modelType);
+
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Calling Coze API", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -135,6 +159,7 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
     }
 
     private void failed(Exception e) {
+        LOG.error(e);
         Messages.showErrorDialog("Failed when calling API: " + e.getMessage(), "Error");
     }
 
@@ -201,8 +226,20 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
                             if(done.get())
                                 return;
                             done.set(true);
-                            String finalResponse = getAnswer(getRequest(apiUrl + GET_ANSER_CMD + conversationQuery));
-                            String finalModel = finalResponse.startsWith(MODEL_START) ? finalResponse : finalResponse.substring(finalResponse.indexOf(MODEL_START));
+                            String finalResponse = getAnswer(getRequest(apiUrl + GET_ANSWER_CMD + conversationQuery));
+                            LOG.info(finalResponse);
+
+                            String finalModel;
+                            if(finalResponse.startsWith(MODEL_START))
+                                finalModel = finalResponse;
+                            else if (finalResponse.contains(MODEL_START))
+                                finalModel = finalResponse.substring(finalResponse.indexOf(MODEL_START));
+                            else {
+                                System.out.println("Format issue detected:");
+                                System.out.println(finalResponse);
+                                finalModel = checkForXbehavior(finalResponse);
+                            }
+
                             SwingUtilities.invokeLater(() -> dialog.dispose());
                             ApplicationManager.getApplication().invokeLater(() -> callback.accept(finalModel));
                         }else {
@@ -218,12 +255,17 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
         };
     }
 
-    private void loadCnofig() {
-        //Get agent config
-        CozeAgentConfig config = CozeAgentConfig.getInstance();
-        this.apiUrl = getApiUrl(config.getSite());
-        this.botId = config.getBotId();
-        this.token = config.getToken();
+    private String checkForXbehavior(String finalResponse) {
+        String headerSeg = "encoding=\"UTF-8\"?>";
+        if(!(XBEHAVIOR.equalsIgnoreCase(modelType) && finalResponse.contains(headerSeg)))
+            return finalResponse;
+
+        String finalModel = MODEL_START + finalResponse.substring(finalResponse.indexOf(headerSeg) + headerSeg.length());
+
+        if(finalModel.endsWith("</behavior_t"))
+            finalModel += "ree>";
+
+        return finalModel;
     }
 
     static class ChatRequest {

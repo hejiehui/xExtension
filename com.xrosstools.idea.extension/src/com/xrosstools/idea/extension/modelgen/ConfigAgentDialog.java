@@ -12,7 +12,11 @@ public class ConfigAgentDialog extends DialogWrapper {
     private final String[] sites = CozeAgentCreator.SITES;
     private ComboBox<String> siteCombo;
     private JTextField tokenField;
-    private JTextField botIdField;
+    private JTextField xunitBotIdField;
+    private JTextField xstateBotIdField;
+    private JTextField xdecisionBotIdField;
+    private JTextField xbehaviorBotIdField;
+    private JTextField xflowBotIdField;
 
     public ConfigAgentDialog(@Nullable Project project) {
         super(project);
@@ -27,13 +31,17 @@ public class ConfigAgentDialog extends DialogWrapper {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
         panel.setPreferredSize(new Dimension(400, 80));
 
-        JPanel labelPanel = new JPanel(new GridLayout(3, 1, 10, 20));
+        JPanel labelPanel = new JPanel(new GridLayout(7, 1, 10, 20));
 
         labelPanel.add(new JLabel("Site:"));
         labelPanel.add(new JLabel("Token:"));
-        labelPanel.add(new JLabel("Bot ID:"));
+        labelPanel.add(new JLabel("Xross Unit Bot ID:"));
+        labelPanel.add(new JLabel("Xross State Bot ID:"));
+        labelPanel.add(new JLabel("Xross Decision Bot ID:"));
+        labelPanel.add(new JLabel("Xross Behavior Bot ID:"));
+        labelPanel.add(new JLabel("Xross Flow Bot ID:"));
 
-        JPanel inputPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        JPanel inputPanel = new JPanel(new GridLayout(7, 1, 10, 10));
         // Site 输入
         siteCombo = new ComboBox<>(sites);
         siteCombo.setPreferredSize(new Dimension(300, 25));
@@ -45,8 +53,20 @@ public class ConfigAgentDialog extends DialogWrapper {
         inputPanel.add(tokenField);
 
         // Bot ID 输入
-        botIdField = new JTextField();
-        inputPanel.add(botIdField);
+        xunitBotIdField = new JTextField();
+        inputPanel.add(xunitBotIdField);
+
+        xstateBotIdField = new JTextField();
+        inputPanel.add(xstateBotIdField);
+
+        xdecisionBotIdField = new JTextField();
+        inputPanel.add(xdecisionBotIdField);
+
+        xbehaviorBotIdField = new JTextField();
+        inputPanel.add(xbehaviorBotIdField);
+
+        xflowBotIdField = new JTextField();
+        inputPanel.add(xflowBotIdField);
 
         panel.add(labelPanel);
         panel.add(inputPanel);
@@ -58,7 +78,12 @@ public class ConfigAgentDialog extends DialogWrapper {
         CozeAgentConfig config = CozeAgentConfig.getInstance();
         siteCombo.setSelectedItem(config.getSite() != null ? config.getSite() : "");
         tokenField.setText(config.getToken() != null ? config.getToken() : "");
-        botIdField.setText(config.getBotId() != null ? config.getBotId() : "");
+
+        xunitBotIdField.setText(config.getXunitBotId() != null ? config.getXunitBotId() : "");
+        xstateBotIdField.setText(config.getXstateBotId() != null ? config.getXstateBotId() : "");
+        xdecisionBotIdField.setText(config.getXdecisionBotId() != null ? config.getXdecisionBotId() : "");
+        xbehaviorBotIdField.setText(config.getXbehaviorBotId() != null ? config.getXbehaviorBotId() : "");
+        xflowBotIdField.setText(config.getXflowBotId() != null ? config.getXflowBotId() : "");
     }
 
     @Override
@@ -67,7 +92,12 @@ public class ConfigAgentDialog extends DialogWrapper {
         CozeAgentConfig config = CozeAgentConfig.getInstance();
         config.setSite((String) siteCombo.getSelectedItem());
         config.setToken(tokenField.getText().trim());
-        config.setBotId(botIdField.getText().trim());
+
+        config.setXunitBotId(xunitBotIdField.getText().trim());
+        config.setXstateBotId(xstateBotIdField.getText().trim());
+        config.setXdecisionBotId(xdecisionBotIdField.getText().trim());
+        config.setXbehaviorBotId(xbehaviorBotIdField.getText().trim());
+        config.setXflowBotId(xflowBotIdField.getText().trim());
 
         super.doOKAction();
     }

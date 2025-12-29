@@ -1,0 +1,237 @@
+# xbehavior生成规范
+xbehavior是行为树模型
+## XML格式规范
+一个xbehavior模型可包含多个行为树
+- 开头固定：`<?xml version="1.0" encoding="UTF-8"?>`：必须完整输出
+- `<behavior_tree evaluator="表达式求值器，缺省为`com.xrosstools.xbehavior.XpressionEvaluator`">`
+  - `<description>`：模型描述（选填）
+  - `<nodes>`：节点列表，每个节点按照索引进行区分，而非名字
+    - `<sequence name="节点名" reactive="是否可以重新激活，缺省为false"/>`：顺序节点。该节点会顺序执行每个子节点，当**所有**子节点返回StatusEnum.SUCCESS时，将返回StatusEnum.SUCCESS；如果任何一个节点返回FAILURE，则返回FAILURE；如果某节点返回RUNNING，则返回RUNNING
+      - 注意顺序节点和下面的选择节点，并发节点都是复合节点，可连接1到多个子节点
+      - StatusEnum是状态枚举，包括SUCCESS，FAILURE和RUNNING三个枚举值。后继提到枚举值时或省略StatusEnum
+      - `reactive`属性为是否采用Reactive模式， 如果为`true`，则当子节点返回StatusEnum.RUNNING时，下一次tick从第一个子节点开始依次tick，否则从上一次返回RUNNING的子节点开始tick
+        - `name`属性可选，对于标志子树的根节点必选，非根节点可省略，下同
+        - `<description>`：节点描述。为所有节点通用元素
+    - `<selector name="节点名" reactive="是否可以重新激活，缺省为false"/>`：选择节点。该会顺序执行每个子节点，当**任意**子节点返回StatusEnum.SUCCESS时，将返回StatusEnum.SUCCESS；如果所有节点返回FAILURE，则返回FAILURE；如果某节点返回RUNNING，则返回RUNNING。`reactive`属性同顺序节点含义
+    - `<parallel count="最小成功节点数" mode="并发模式" name="节点名"/>`：并发节点。该会“并发”（内部实现为顺序）执行所有子节点，根据Mode的选择，当满足数量的节点返回SUCCESS时，将返回SUCCESS，否则返回FAILURE；如果数量不满足，且子节点返回RUNNING，则返回RUNNING
+      - `mode`属性值共有三种：
+        - `ALL`，所有节点都返回SUCCESS
+        - `ANY`，任一节点返回SUCCESS
+        - `SOME`，给定Count数量的节点都返回SUCCESS
+      - `count`属性只有当Mode为SOME时，才会显示其值为需要返回SUCCESS的子节点的最小数值
+    - `<inverter name="节点名"/>`：倒转节点。对子节点的返回值取反，子节点返回SUCCESS时，返回FAILURE；子节点返回FAILURE时，返回SUCCESS；子节点返回RUNNING时。返回RUNNING
+      - 注意倒转节点和下面的重复节点，重试节点，等待节点，强制成功节点，强制失败节点都是装饰节点，可连接最多1个子节点
+    - `<repeat count="重复次数" mode="MAX_ATTEMPT" name="节点名" repeat_until_failure="是否在失败时终止，缺省为`true`"/>`：基于最大重复次数的重复节点。按照重复次数重复调用子节点，直到节点返回FAILURE或满足一定条件
+    - `<repeat count="重复时长" mode="TIMEOUT" name="节点名" repeat_until_failure="是否在失败时终止，缺省为`true`" time_unit="时长单位"/>`：基于最大重复时长的重复节点。按照重复时长重复调用子节点，直到节点返回FAILURE或满足一定条件
+      - `time_unit`属性取值范围为Java中TimeUnit的枚举值，下同
+    - `<retry count="重试次数" mode="MAX_ATTEMPT" name="节点名"/>`：基于最大重试次数的重试节点。按照重试次数重试调用子节点，直到节点返回SUCCESS或满足一定条件
+    - `<retry count="重试时长" mode="TIMEOUT" name="节点名" time_unit="时长单位"/>`：基于最大重试时长的重试节点。按照重试时长重试调用子节点，直到节点返回SUCCESS或满足一定条件
+    - `<wait name="节点名" time_unit="时长单位" timeout="等待长度"/>`：等待节点会在等待给定时间后再调用子节点
+    - `<force_success name="force sucess"/>`：强制成功节点。无论子节点返回SUCCESS或FAILURE，都返回SUCCESS；子节点返回RUNNING时将返回RUNNING
+    - `<force_failure name="force failure"/>`：强制失败节点。无论子节点返回SUCCESS或FAILURE，都返回SUCCESS；子节点返回RUNNING时将返回RUNNING
+    - `<condition implementation="回调Java类全名" mode="CALLBACK" name="节点名"/>`：基于回调的条件节点。该节点根据回调函数返回值是true还是false来决定返回SUCCESS或者FAILURE
+      - 注意从条件节点开始都是基础节点，该类型节点为叶子节点，无子节点
+    - `<condition left_expression="左侧表达式（必填），例如`A.isEmpty()`" mode="EXPRESSION" name="节点名" operator="比较符" right_expression="右侧表达式（选填）"/>`：基于表达式的条件节点。该节点根据表达式的值是true还是false来决定返回SUCCESS或者FAILURE
+      - `operator`属性可选值为：
+        - 单值判断（无需`right_expression`）：
+          - `IS NULL`：是否为空值
+          - `IS NOT NULL`：是否不为空值
+          - `IS TRUE`：是否为真
+          - `IS FALSE`：是否为假
+        - 两值比较：
+          - `==`：等于
+          - `<>`：不等于
+          - `>`：等于
+          - `>=`：等于
+          - `<`：等于
+          - `<=`：等于
+          - 生成XML时，需要对两值比较符合中包含的`<`和`>`符号进行转义
+        - 字符串判断
+          - `STARTS WITH`：字符串是否以什么开始
+          - `NOT STARTS WITH`：字符串是否以不以什么开始
+          - `ENDS WITH`：字符串是否以什么结束
+          - `NOT ENDS WITH`：字符串是否不以什么结束
+          - `CONTAINS`：字符串是否包含什么
+          - `NOT CONTAINS`：字符串是否不包含什么
+          - `MATCHES`：字符串是否符合什么模式
+          - `NOT MATCHES`：字符串是否不符合什么模式
+        - 集合判断
+          - `BETWEEN`：等于
+          - `NOT BETWEEN`：等于
+          - `IN`：等于
+          - `NOT IN`：等于
+    - `<action asynchronous="false" implementation="Java类全名" name="节点名"/>`：同步模式的回调节点
+    - `  <action asynchronous="true" name="节点名" time_unit="时长单位" timeout="超时时长"/>`：同步模式的回调节点，与重复节点类似需设置超时相关配置
+    - `<fixed_status name="节点名" status="节点状态"/>`：固定状态节点，返回StatusEnum
+    - `<sleep count="睡眠时长" name="节点名" time_unit="时长单位"/>`：睡眠节点，与重复节点类似需设置超时相关配置
+    - `<subtree name="节点名" subtree="子树名字"/>`：子树调用节点。当前模型所有设置了Name属性的顶层节点都可以选择
+  - `<connections>`：连接列表
+    - `<connection source_index="源节点索引" target_index="目标节点索引"/>`：节点连接
+
+## XML格式限制
+- 语言要求
+  - 模型文件的description节点应该包含用户需求的核心思想
+  - 根据用户输入的主要语言决定描述、标签等文本字段的语言（中文/英文）。用户有明确要求时，优先遵循其要求。
+  - 除XML元素外的其他内容如包含特殊字符`<`、`>`、`&`等，需使用XML转义字符。例如`<`，替换为`&lt`
+- 格式要求
+  - 生成的模型文本应该格式友好，父子节点间缩进为1个空格，忽略示例中不一致格式
+- 节点类型与连接限制
+  - 节点间是树形关系，既任何节点最多只能有一个父节点
+  - 复合节点。包括Sequence，Selector和Parallel。复合节点为中间结点，可以连接1到多个子节点。
+  - 装饰节点。包括倒转节点，重复节点，重试节点，等待节点，强制成功节点，强制失败节点。装饰节点为中间节点，可连接最多1个子节点
+  - 基础节点。包括条件节点，回调节点，固定状态节点，睡眠节点和子树节点。基础节点为叶子节点，无子节点
+
+## 模型生成过程和规则：
+* 提取信息：模型描述，节点和连接信息。
+* 对于重复或者公共的行为可提升为顶层树，并通过子树进行复用
+
+## 示例
+### 示例1：xbehavior模型示例
+以下是一个包含大多数单元的xbehavior模型示例，用于说明节点，子树的结构，属性，配置等用法
+
+### 示例1：输出XML
+```
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior_tree evaluator="com.xrosstools.xbehavior.XpressionEvaluator">
+ <description/>
+ <nodes>
+  <fixed_status name="failure" status="FAILURE"/>
+  <fixed_status name="success" status="SUCCESS"/>
+  <fixed_status name="success" status="SUCCESS">
+   <description>fixed desc</description>
+  </fixed_status>
+  <fixed_status name="failure" status="FAILURE"/>
+  <fixed_status name="failure" status="SUCCESS"/>
+  <fixed_status name="success" status="SUCCESS"/>
+  <subtree name="Failure" subtree="Failure"/>
+  <subtree name="failure" subtree="Failure"/>
+  <subtree name="success" subtree="Success"/>
+  <subtree name="selector success" subtree="selector success"/>
+  <subtree name="parallel success" subtree="parallel success"/>
+  <fixed_status name="success" status="SUCCESS"/>
+  <fixed_status name="success" status="SUCCESS"/>
+  <fixed_status name="success" status="SUCCESS"/>
+  <fixed_status name="running" status="RUNNING"/>
+  <fixed_status name="failure" status="FAILURE"/>
+  <fixed_status name="failure" status="FAILURE"/>
+  <fixed_status name="failure" status="FAILURE"/>
+  <fixed_status name="running" status="RUNNING"/>
+  <subtree name="sequence failure" subtree="sequence failure"/>
+  <subtree name="selector failure" subtree="selector failure"/>
+  <subtree name="Failure" subtree="Failure"/>
+  <subtree name="sequence running" subtree="sequence running"/>
+  <subtree name="sequence success" subtree="sequence success"/>
+  <subtree name="selector success" subtree="selector success"/>
+  <subtree name="parallel success" subtree="parallel success"/>
+  <subtree name="parallel running" subtree="parallel running"/>
+  <sleep count="1" name="1 sec" time_unit="SECONDS"/>
+  <fixed_status name="running" status="RUNNING"/>
+  <inverter/>
+  <sleep count="1" time_unit="SECONDS"/>
+  <fixed_status status="RUNNING"/>
+  <action asynchronous="false" implementation="com.xrosstools.xbehavior.sample.Action5FailureSuccess" name="action5"/>
+  <action asynchronous="false" implementation="com.xrosstools.xbehavior.sample.Action5FailureSuccess" name="action5">
+   <description/>
+  </action>
+  <subtree name="selector running" subtree="selector running"/>
+  <action asynchronous="false" implementation="com.xrosstools.xbehavior.sample.Action5SuccessFailure"/>
+  <action asynchronous="false" implementation="com.xrosstools.xbehavior.sample.Action5SuccessFailure"/>
+  <fixed_status status="FAILURE"/>
+  <subtree name="wait success" subtree="wait success"/>
+  <sleep count="2" name="2 sec" time_unit="SECONDS"/>
+  <subtree name="inverter failure" subtree="inverter failure"/>
+  <fixed_status name="running" status="RUNNING"/>
+  <subtree name="sequency running" subtree="sequence running"/>
+  <subtree name="selector running" subtree="selector running"/>
+  <sequence name="sequence failure" reactive="false">
+   <description>sequ desc</description>
+  </sequence>
+  <sequence name="sequence success" reactive="false"/>
+  <sequence name="sequence running" reactive="false"/>
+  <selector name="selector success" reactive="false"/>
+  <selector name="selector failure" reactive="false"/>
+  <selector name="selector running" reactive="false"/>
+  <parallel count="2" mode="SOME" name="parallel success"/>
+  <parallel mode="ANY" name="parallel failure"/>
+  <parallel mode="ALL" name="parallel running"/>
+  <inverter name="inverter success"/>
+  <inverter name="inverter failure"/>
+  <inverter name="inverter running"/>
+  <repeat count="5" mode="MAX_ATTEMPT" name="repeat success" repeat_until_failure="true"/>
+  <repeat count="10" mode="MAX_ATTEMPT" name="repeat failure" repeat_until_failure="true"/>
+  <repeat count="10" mode="MAX_ATTEMPT" name="repeat running" repeat_until_failure="true"/>
+  <repeat count="1010" mode="TIMEOUT" name="repeat success timeout" repeat_until_failure="true" time_unit="MILLISECONDS"/>
+  <repeat count="2" mode="TIMEOUT" name="repeat failure timeout" repeat_until_failure="true" time_unit="SECONDS"/>
+  <repeat count="1" mode="TIMEOUT" name="repeat running timeout" repeat_until_failure="true" time_unit="SECONDS"/>
+  <retry count="5" mode="MAX_ATTEMPT" name="retry failure"/>
+  <retry count="6" mode="MAX_ATTEMPT" name="retry success"/>
+  <retry count="10" mode="MAX_ATTEMPT" name="retry running"/>
+  <retry count="1030" mode="TIMEOUT" name="retry success timeout" time_unit="MILLISECONDS"/>
+  <retry count="1" mode="TIMEOUT" name="retry failure timeout" time_unit="SECONDS"/>
+  <retry count="1" mode="TIMEOUT" name="retry running timeout" time_unit="SECONDS"/>
+  <wait name="wait success" time_unit="SECONDS" timeout="1"/>
+  <wait name="wait failure" time_unit="SECONDS" timeout="1"/>
+  <wait name="wait running" time_unit="SECONDS" timeout="1"/>
+  <force_success name="force sucess"/>
+  <force_failure name="force failure"/>
+  <force_success name="force success running"/>
+  <force_failure name="force failure running"/>
+  <sleep count="1" name="sleep" time_unit="SECONDS"/>
+  <fixed_status name="Failure" status="FAILURE"/>
+  <fixed_status name="Success" status="SUCCESS"/>
+  <subtree name="subtree sucess" subtree="selector success"/>
+  <condition implementation="com.xrosstools.xbehavior.sample.ConditionByA" mode="CALLBACK" name="callback true"/>
+  <condition implementation="com.xrosstools.xbehavior.sample.ConditionByA" mode="CALLBACK" name="callback false"/>
+  <condition left_expression="A" mode="EXPRESSION" name="expression false" operator="&gt;" right_expression="B"/>
+  <condition left_expression="A" mode="EXPRESSION" name="expression true" operator="&gt;=" right_expression="1.23"/>
+ </nodes>
+ <connections>
+  <connection source_index="29" target_index="30"/>
+  <connection source_index="44" target_index="2"/>
+  <connection source_index="44" target_index="3"/>
+  <connection source_index="45" target_index="12"/>
+  <connection source_index="45" target_index="11"/>
+  <connection source_index="46" target_index="13"/>
+  <connection source_index="46" target_index="14"/>
+  <connection source_index="47" target_index="4"/>
+  <connection source_index="47" target_index="5"/>
+  <connection source_index="48" target_index="15"/>
+  <connection source_index="48" target_index="16"/>
+  <connection source_index="49" target_index="17"/>
+  <connection source_index="49" target_index="18"/>
+  <connection source_index="50" target_index="7"/>
+  <connection source_index="50" target_index="8"/>
+  <connection source_index="50" target_index="9"/>
+  <connection source_index="51" target_index="19"/>
+  <connection source_index="51" target_index="21"/>
+  <connection source_index="51" target_index="20"/>
+  <connection source_index="52" target_index="22"/>
+  <connection source_index="52" target_index="24"/>
+  <connection source_index="52" target_index="23"/>
+  <connection source_index="53" target_index="6"/>
+  <connection source_index="54" target_index="25"/>
+  <connection source_index="55" target_index="26"/>
+  <connection source_index="56" target_index="35"/>
+  <connection source_index="57" target_index="36"/>
+  <connection source_index="58" target_index="28"/>
+  <connection source_index="59" target_index="27"/>
+  <connection source_index="60" target_index="29"/>
+  <connection source_index="61" target_index="31"/>
+  <connection source_index="62" target_index="32"/>
+  <connection source_index="63" target_index="33"/>
+  <connection source_index="64" target_index="34"/>
+  <connection source_index="65" target_index="38"/>
+  <connection source_index="66" target_index="40"/>
+  <connection source_index="67" target_index="39"/>
+  <connection source_index="68" target_index="10"/>
+  <connection source_index="69" target_index="37"/>
+  <connection source_index="70" target_index="41"/>
+  <connection source_index="71" target_index="0"/>
+  <connection source_index="72" target_index="1"/>
+  <connection source_index="73" target_index="42"/>
+  <connection source_index="74" target_index="43"/>
+ </connections>
+</behavior_tree>
+```
+

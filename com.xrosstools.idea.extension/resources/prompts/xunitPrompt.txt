@@ -1,0 +1,159 @@
+# xunit生成规范
+xunit是流程图模型，一个xunit模型可包含多个流程图
+## XML格式规范
+- 开头固定：`<?xml version="1.0" encoding="UTF-8"?>`：必须完整输出
+- `<xunit description="模型描述（选填）" name="模型名字（选填）" packageId="模型包名（忽略）">`
+  - `<properties>`：全局配置列表
+    - `<property key="配置名" value="配置值"/>`：配置项
+  - `<units>`：流程图列表，每个子元素都是一个独立单元，彼此间无顺序依赖。可包含以下节点
+    - `<processor class="Java类全名（选填）" description="描述（选填）" module="被引用的xunit模型名（选填）" name="处理单元名字（为`units`子元素时必填，其他情况选填）" reference="被引用的处理单元名（选填）"/>`：处理单元，用于对输入参数进行处理，不产生输出
+      - `<property key="配置名" value="配置值"/>`：配置项。每个单元都可以有0到多个配置项
+    - `<converter>`：转换单元，用于将输入参数转换为输出参数。属性同处理单元
+    - `<chain class="Java类全名（选填）。缺省为`default`" name="处理单元名字（为`units`子元素时必填，其他情况选填）" type="单元类型">`：顺序结构单元。可包含任意数量和类型的子单元，运行时将根据顺序执行。
+      - type属性可选值为`processor`或`converter`，代表该结构类型为处理单元或转换单元。缺省为`processor`
+    - `<bi_branch>`：二选一结构单元。属性同顺序结构单元
+      - `<validator  class="Java类全名（必填）" description="描述（选填）" module="被引用的xunit模型名（忽略）" name="单元名字（选填）" reference="被引用的处理单元名（忽略）" invalidLabel="错误分支标签，缺省为`false`" validLabel="正确分支标签，缺省为`true`"/>`：对错判断单元，用于选择一条可执行分支
+      - `<valid_unit>`：正确分支处理单元。可包含最多一个子单元
+      - `<invalid_unit>`：错误分支处理单元。可包含最多一个子单元
+    - `<branch>`：多选一结构单元。属性同顺序结构单元。包含一个`locator`元素和0到多个`branch_unit`单元
+      - `<locator class="Java类全名（必填）" description="描述（选填）" module="被引用的xunit模型名（忽略）" name="单元名字（选填）" reference="被引用的处理单元名（忽略）" default_key="缺省分支键值（选填），例如`&lt;10`"/>`：分支选择单元，用于选择一条可执行分支
+      - `<branch_unit key="分支键值（必填），例如`&lt;10`" label="分支标签">`：分支单元，包含1个子单元
+    - `<while>`：while式循环结构单元。属性同顺序结构单元。包含一个`validator`单元和一个`loop_unit`单元
+      - `<loop_unit>`：循环体单元。包含一个子处理或转换单元
+    - `<do_while>`：do while式循环结构单元。属性同顺序结构单元。包含一个`validator`单元和一个`loop_unit`单元
+    - `<decorator>`：装饰器单元。属性同顺序结构单元。包含一个`decorator_unit`元素
+      - `<decorator_unit>`：装饰体单元，包含一个子处理或转换单元
+    - `<adapter>`：适配器单元。属性同顺序结构单元。包含一个`adapter_unit`元素
+      - `<adapter_unit>`：适配体单元，包含一个子处理或转换单元
+    - `<parallel_branch>`：并发分支结构。属性同顺序结构单元。包含一个`dispatcher`元素和0到多个`branch_unit`单元
+      - `<dispatcher completion_mode="处理模式（必填）" time_unit="时间单位（必填）" timeout="超时时长（必填），缺省为10秒"/>`：派发器单元，用于确认并发方式，哪些分支需要执行和超时时间
+        - 处理模式属性范围为：
+          - `all`：并发调用所有分支，并等待所有分支结束
+          - `any`：并发调用所有分支，并等待任一分支结束
+          - `critical`：并发调用所有分支，并等待所有关键分支结束
+          - `none`：并发调用所有分支后不等待既进入后继处理
+      - `<branch_unit key="分支标记键值" label="分支标签" task_type="分支类型">`：
+        - 分支类型属性范围为：
+          - `normal`：普通分支，参与`all`，`any`模式下的判断
+          - `mandatory`：关键分支，在`critical`模式下必须等待执行完成，其他模式等同`normal`分支
+          - `standalone`：独立分支，调用后不必等待结束，不受执行模式限制
+
+## XML格式限制
+- 语言要求
+  - 模型文件的description节点应该包含用户需求的核心思想
+  - 根据用户输入的主要语言决定描述、标签等文本字段的语言（中文/英文）。用户有明确要求时，优先遵循其要求。
+  - 除XML元素外的其他内容如包含特殊字符`<`、`>`、`&`等，需使用XML转义字符。例如`<`，替换为`&lt`
+   格式要求
+  - 生成的模型文本应该格式友好，父子节点间缩进为1个空格，忽略示例中不一致格式
+- 顶层单元只能是处理和转换单元或处理和转换单结构单元
+
+## 模型生成过程和规则：
+* 提取信息：模型名，配置，单元行为信息。
+* 提取单元结构
+* 除非用户要求，否则不要生成顶层单元后引用，直接通过结构单元组合在一起
+
+## 示例
+### 示例1：xunit模型示例
+以下是一个包含大多数单元的xunit示例，用于说明单元的结构，属性，配置等用法
+
+### 示例1：输出XML
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xunit description="" name="" packageId="">
+ <properties/>
+ <units>
+  <processor class="com.xrosstools.xunit.sample.unit.TextProcessor" description="" module="" name="Processor test" reference=""/>
+  <processor class="com.xrosstools.xunit.sample.unit.UnitDefinitionAwareProcessor" description="" module="" name="unit_test:Reference Processor" reference=""/>
+  <processor class="default" description="" module="" name="UnitDefinitionAware test" reference="">
+   <property key="showUnitDefinition" value="false"/>
+  </processor>
+  <converter class="com.xrosstools.xunit.sample.unit.TextConverter" description="" module="" name="Converter test" reference=""/>
+  <chain class="default" description="" name="Chain test" type="processor">
+   <processor class="com.xrosstools.xunit.sample.unit.TextProcessor" description="" module="" name="unit 1" reference=""/>
+   <processor class="com.xrosstools.xunit.sample.unit.UpperCaseTextProcessor" description="" module="" name="unit 2" reference=""/>
+   <processor class="com.xrosstools.xunit.sample.unit.LowerCaseTextProcessor" description="" module="" name="unit 3" reference=""/>
+  </chain>
+  <bi_branch class="default" description="" name="Bibranch test" type="processor">
+   <validator class="com.xrosstools.xunit.sample.unit.LengthValidator" description="" invalidLabel="false" module="" name="validator" reference="" validLabel="true"/>
+   <valid_unit>
+    <processor class="com.xrosstools.xunit.sample.unit.UpperCaseTextProcessor" description="" module="" name="valid node" reference=""/>
+   </valid_unit>
+   <invalid_unit>
+    <processor class="com.xrosstools.xunit.sample.unit.LowerCaseTextProcessor" description="" module="" name="invalide node" reference=""/>
+   </invalid_unit>
+  </bi_branch>
+  <branch class="default" description="" name="Branch test" type="processor">
+   <locator class="com.xrosstools.xunit.sample.unit.LengthLocator" default_key="&lt;10" description="" module="" name="locator" reference=""/>
+   <branch_unit key="&lt;10">
+    <processor class="com.xrosstools.xunit.sample.unit.TextProcessor" description="" module="" name="node 1" reference=""/>
+   </branch_unit>
+   <branch_unit key="10 - 20">
+    <processor class="com.xrosstools.xunit.sample.unit.UpperCaseTextProcessor" description="" module="" name="node 2" reference=""/>
+   </branch_unit>
+   <branch_unit key="&gt;20">
+    <processor class="com.xrosstools.xunit.sample.unit.LowerCaseTextProcessor" description="" module="" name="node 3" reference=""/>
+   </branch_unit>
+  </branch>
+  <while class="default" description="" name="While loop test" type="processor">
+   <validator class="com.xrosstools.xunit.sample.unit.LengthValidator" description="" invalidLabel="false" module="" name="validator" reference="" validLabel="true"/>
+   <loop_unit>
+    <processor class="com.xrosstools.xunit.sample.unit.TextShortenProcessor" description="" module="" name="update sum" reference=""/>
+   </loop_unit>
+  </while>
+  <do_while class="default" description="" name="Do-while loop test" type="processor">
+   <validator class="com.xrosstools.xunit.sample.unit.LengthValidator" description="" invalidLabel="false" module="" name="validator" reference="" validLabel="true"/>
+   <loop_unit>
+    <processor class="com.xrosstools.xunit.sample.unit.TextShortenProcessor" description="" module="" name="update sum" reference=""/>
+   </loop_unit>
+  </do_while>
+  <parallel_branch class="default" description="" name="Parallel Any Mode" type="processor">
+   <dispatcher class="com.xrosstools.xunit.sample.parallel.TestDispatcher" completion_mode="any" description="" module="" name="dispatcher" reference="" time_unit="MILLISECONDS" timeout="10"/>
+   <branch_unit key="S 1" task_type="standalone">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="processor" reference=""/>
+   </branch_unit>
+   <branch_unit key="S 2" task_type="standalone">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="processor" reference=""/>
+   </branch_unit>
+   <branch_unit key="Task 1" task_type="normal">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="node 1" reference=""/>
+   </branch_unit>
+   <branch_unit key="Task 2" task_type="normal">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="node 2" reference=""/>
+   </branch_unit>
+   <branch_unit key="Task 3" task_type="normal">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="node 3" reference=""/>
+   </branch_unit>
+  </parallel_branch>
+  <parallel_branch class="default" description="" name="Parallel Critical Mode" type="processor">
+   <dispatcher class="com.xrosstools.xunit.sample.parallel.TestDispatcher" completion_mode="critical" description="" module="" name="dispatcher" reference="" time_unit="MILLISECONDS" timeout="10"/>
+   <branch_unit key="Task 2" task_type="mandatory">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="node 2" reference=""/>
+   </branch_unit>
+   <branch_unit key="S 1" task_type="standalone">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="processor" reference=""/>
+   </branch_unit>
+   <branch_unit key="Task 1" task_type="normal">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="node 1" reference=""/>
+   </branch_unit>
+   <branch_unit key="S 2" task_type="standalone">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="processor" reference=""/>
+   </branch_unit>
+   <branch_unit key="Task 3" task_type="mandatory">
+    <processor class="com.xrosstools.xunit.sample.parallel.TestTask" description="" module="" name="node 3" reference=""/>
+   </branch_unit>
+  </parallel_branch>
+  <decorator class="com.xrosstools.xunit.sample.unit.TextDecorator" description="" name="Decorator test" type="converter">
+   <decorator_unit>
+    <converter class="com.xrosstools.xunit.sample.unit.TextConverter" description="" module="" name="converter" reference=""/>
+   </decorator_unit>
+  </decorator>
+  <adapter class="com.xrosstools.xunit.sample.unit.TextAdapter" description="" name="Adapter test" type="converter">
+   <adapter_unit>
+    <processor class="com.xrosstools.xunit.sample.unit.TextProcessor" description="" module="" name="processor" reference=""/>
+   </adapter_unit>
+  </adapter>
+ </units>
+</xunit>
+```
+

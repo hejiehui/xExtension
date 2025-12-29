@@ -12,10 +12,7 @@ public interface CozeConstants {
 
     String CHAT_CMD = "/v3/chat";
     String GET_STATUS_CMD = "/v3/chat/retrieve";
-    String GET_ANSER_CMD = "/v3/chat/message/list";
-
-
-    String MODEL_ID = "1706077826"; // 豆包模型 ID
+    String GET_ANSWER_CMD = "/v3/chat/message/list";
 
     String[] SITES = {
             "https://www.coze.com",
@@ -27,15 +24,20 @@ public interface CozeConstants {
             "https://api.coze.cn",
     };
 
-    String[] PROMPTS = {
-            "xflowPrompt.txt"
-    };
+    String XUNIT = "xunit";
+    String XSTATE = "xstate";
+    String XDECISION = "xdecision";
+    String XBEHAVIOR = "xbehavior";
+    String XFLOW = "xflow";
+
+    String XROSS_UNIT = "Xross Unit";
+    String XROSS_DECISION = "Xross Decision";
+    String XROSS_STATE = "Xross State";
+    String XROSS_BEHAVIOR = "Xross Behavior";
+    String XROSS_FLOW = "Xross Flow";
+
 
     default String getApiUrl(String site) {
         return APIS[site.equals(SITES[0]) ? 0 : 1];
-    }
-
-    default String getPrompt(String site) {
-        return PROMPTS[0];
     }
 }

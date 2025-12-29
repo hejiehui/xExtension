@@ -6,7 +6,6 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +17,11 @@ import org.jetbrains.annotations.Nullable;
 public class CozeAgentConfig implements PersistentStateComponent<CozeAgentConfig>, CozeConstants {
     private String site;
     private String spaceId;
-    private String botId;
+    private String xunitBotId;
+    private String xstateBotId;
+    private String xdecisionBotId;
+    private String xbehaviorBotId;
+    private String xflowBotId;
 
     @Nullable
     @Override
@@ -38,9 +41,6 @@ public class CozeAgentConfig implements PersistentStateComponent<CozeAgentConfig
     public String getSpaceId() { return spaceId; }
     public void setSpaceId(String spaceId) { this.spaceId = spaceId; }
 
-    public String getBotId() { return botId; }
-    public void setBotId(String botId) { this.botId = botId; }
-
     public static CozeAgentConfig getInstance() {
         return ServiceManager.getService(CozeAgentConfig.class);
     }
@@ -51,5 +51,45 @@ public class CozeAgentConfig implements PersistentStateComponent<CozeAgentConfig
 
     public static void setToken(String token) {
         PasswordSafe.getInstance().setPassword(new CredentialAttributes(SERVICE_NAME, USER_NAME), token);
+    }
+
+    public String getXunitBotId() {
+        return xunitBotId;
+    }
+
+    public void setXunitBotId(String xunitBotId) {
+        this.xunitBotId = xunitBotId;
+    }
+
+    public String getXstateBotId() {
+        return xstateBotId;
+    }
+
+    public void setXstateBotId(String xstateBotId) {
+        this.xstateBotId = xstateBotId;
+    }
+
+    public String getXdecisionBotId() {
+        return xdecisionBotId;
+    }
+
+    public void setXdecisionBotId(String xdecisionBotId) {
+        this.xdecisionBotId = xdecisionBotId;
+    }
+
+    public String getXflowBotId() {
+        return xflowBotId;
+    }
+
+    public void setXflowBotId(String xflowBotId) {
+        this.xflowBotId = xflowBotId;
+    }
+
+    public String getXbehaviorBotId() {
+        return xbehaviorBotId;
+    }
+
+    public void setXbehaviorBotId(String xbehaviorBotId) {
+        this.xbehaviorBotId = xbehaviorBotId;
     }
 }
