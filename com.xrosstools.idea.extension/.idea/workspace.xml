@@ -2,32 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a961379b-4220-4ade-b14a-9df5f0e5b499" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/resources/prompts/headerPrompt.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/prompts/xstatePrompt.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/prompts/xunitPrompt.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelDialog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/com.xrosstools.idea.extension/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/com.xrosstools.idea.extension/META-INF/plugin.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/com.xrosstools.idea.extension/icons/export_pdf.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/com.xrosstools.idea.extension/icons/search.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/com.xrosstools.idea.extension/prompts/xflowPrompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/com.xrosstools.idea.extension/prompts/xflowPrompt.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/resources/META-INF/plugin.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/icons/export_pdf.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/icons/search.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/prompts/headerPrompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/prompts/headerPrompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/prompts/xflowPrompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/prompts/xflowPrompt.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ExportPngAction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ExtensionIcons.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ExtensionIcons.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/SearchModelAction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ToolbarExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ToolbarExtension.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ConfigAgentDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ConfigAgentDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeAgentConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeAgentConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeAgentCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeAgentCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/prompts/xstatePrompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/prompts/xstatePrompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/prompts/xunitPrompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/prompts/xunitPrompt.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CreateAgentWizard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CreateAgentWizard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/StatusDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/StatusDialog.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -39,10 +22,22 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt">
+        <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/EditorPanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="4" column="54" selection-start-line="4" selection-start-column="54" selection-end-line="4" selection-end-column="54" />
+            <state relative-caret-position="674">
+              <caret line="345" column="57" lean-forward="true" selection-start-line="345" selection-start-column="57" selection-end-line="345" selection-end-column="57" />
+              <folding>
+                <element signature="e#12614#12615#0" expanded="true" />
+                <element signature="e#16716#16717#0" expanded="true" />
+                <element signature="e#38747#38748#0" expanded="true" />
+                <element signature="e#38813#38814#0" expanded="true" />
+                <element signature="e#38881#38882#0" expanded="true" />
+                <element signature="e#38958#38959#0" expanded="true" />
+                <element signature="e#39038#39039#0" expanded="true" />
+                <element signature="e#39112#39113#0" expanded="true" />
+                <element signature="e#39193#39194#0" expanded="true" />
+                <element signature="e#39273#39274#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -50,8 +45,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/resources/prompts/headerPrompt.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
+            <state relative-caret-position="171">
+              <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="171">
+              <caret line="57" column="14" lean-forward="true" selection-start-line="57" selection-start-column="14" selection-end-line="57" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -59,17 +63,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="5" selection-start-line="4" selection-end-line="5" />
+            <state relative-caret-position="38">
+              <caret line="2" selection-start-line="2" selection-end-line="2" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="522">
-              <caret line="258" selection-start-line="258" selection-end-line="258" />
+            <state relative-caret-position="328">
+              <caret line="204" column="8" selection-start-line="204" selection-start-column="8" selection-end-line="204" selection-end-column="8" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#7461#7462#0" expanded="true" />
@@ -79,38 +83,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="362">
-              <caret line="24" column="59" selection-start-line="24" selection-start-column="59" selection-end-line="24" selection-end-column="59" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/ToolbarExtension.java">
-          <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="266">
-              <caret line="17" column="1" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/ExtensionIcons.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="7" selection-start-line="7" selection-end-line="7" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/prompts/xflowPrompt.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="3" selection-start-line="3" selection-end-line="3" />
+              <caret line="14" column="33" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -118,8 +95,38 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/resources/prompts/xstatePrompt.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="54" />
+            <state relative-caret-position="19">
+              <caret line="1" column="20" lean-forward="true" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/resources/prompts/xunitPrompt.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="646">
+              <caret line="49" column="5" lean-forward="true" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelAction.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="740">
+              <caret line="60" column="81" selection-start-line="60" selection-start-column="81" selection-end-line="60" selection-end-column="81" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/resources/prompts/xflowPrompt.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="19">
+              <caret line="1" column="20" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -135,11 +142,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>com.xrosstools.idea.gef</find>
-      <find>Bearer cztei_hM18uMUxKt8YXne7jsxP9uvZuhpNhbKrIHoDpiE6numuOUMSAu78jGIL28fc8XS7h</find>
-      <find>BOT_ID</find>
-      <find>7551808903206682667</find>
-      <find>-8</find>
       <find>ChatResponse</find>
       <find>spa</find>
       <find>SpaceListResponse</find>
@@ -165,6 +167,11 @@
       <find>事实</find>
       <find>initStatus</find>
       <find>botId</find>
+      <find>LOG</find>
+      <find>log</find>
+      <find>saving</find>
+      <find>Can not load co</find>
+      <find>Messages.showErrorDialo</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -173,7 +180,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/DefaultNewModelFileAction.java" />
         <option value="$PROJECT_DIR$/resources/test.http" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/StatusDialog.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/CozeNewModelExtension.java" />
@@ -208,22 +214,23 @@
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/OptimizeModelAction.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ModifyModelAction.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelDialog.java" />
-        <option value="$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/EditorPanel.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelAction.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeConstants.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeAgentCreator.java" />
-        <option value="$PROJECT_DIR$/resources/prompts/xflowPrompt.txt" />
-        <option value="$PROJECT_DIR$/resources/prompts/xunitPrompt.txt" />
-        <option value="$PROJECT_DIR$/resources/prompts/xstatePrompt.txt" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CreateAgentWizard.java" />
-        <option value="$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt" />
-        <option value="$PROJECT_DIR$/resources/prompts/headerPrompt.txt" />
-        <option value="$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt" />
-        <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java" />
-        <option value="$PROJECT_DIR$/resources/META-INF/plugin.xml" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ToolbarExtension.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ExportPngAction.java" />
         <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/ExtensionIcons.java" />
+        <option value="$PROJECT_DIR$/resources/META-INF/plugin.xml" />
+        <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/StatusDialog.java" />
+        <option value="$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java" />
+        <option value="$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/EditorPanel.java" />
+        <option value="$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt" />
+        <option value="$PROJECT_DIR$/resources/prompts/xstatePrompt.txt" />
+        <option value="$PROJECT_DIR$/resources/prompts/xflowPrompt.txt" />
+        <option value="$PROJECT_DIR$/resources/prompts/xunitPrompt.txt" />
+        <option value="$PROJECT_DIR$/resources/prompts/headerPrompt.txt" />
+        <option value="$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt" />
       </list>
     </option>
   </component>
@@ -241,7 +248,7 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
+    <option name="x" value="-6" />
     <option name="width" value="1734" />
     <option name="height" value="1399" />
   </component>
@@ -338,7 +345,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1767002073100" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1767173553444" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.0" />
@@ -403,9 +410,9 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1734" height="1399" extended-state="0" />
+    <frame x="-6" y="0" width="1734" height="1399" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22700119" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22700119" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -415,7 +422,7 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.26956522" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32964426" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.23873518" />
+      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.23873518" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -444,22 +451,16 @@
           <option name="timeStamp" value="70" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelAction.java</url>
-          <line>53</line>
+          <url>file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/EditorPanel.java</url>
+          <line>333</line>
           <properties />
-          <option name="timeStamp" value="79" />
+          <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java</url>
-          <line>237</line>
+          <line>204</line>
           <properties />
-          <option name="timeStamp" value="96" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java</url>
-          <line>258</line>
-          <properties />
-          <option name="timeStamp" value="98" />
+          <option name="timeStamp" value="137" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -474,35 +475,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/CozeAuthHelper.java" />
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/fluent-hc-4.5.6.jar!/org/apache/http/client/fluent/ContentResponseHandler.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/httpclient-4.5.6.jar!/org/apache/http/client/ResponseHandler.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/httpclient-4.5.6.jar!/org/apache/http/impl/client/CloseableHttpClient.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="60" column="33" selection-start-line="60" selection-start-column="33" selection-end-line="60" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/httpclient-4.5.6.jar!/org/apache/http/impl/client/BasicResponseHandler.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="18" column="33" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/ui.java" />
     <entry file="jar://C:/Program Files/Java/jdk-1.8/src.zip!/javax/swing/JComboBox.java">
       <provider selected="true" editor-type-id="text-editor">
@@ -655,27 +627,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/EditorPanel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="160" selection-start-line="160" selection-end-line="160" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/openapi/ui/Messages.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="299">
           <caret line="739" column="23" selection-start-line="739" selection-start-column="23" selection-end-line="739" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="645">
-          <caret line="57" column="118" lean-forward="true" selection-start-line="57" selection-start-column="118" selection-end-line="57" selection-end-column="118" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -702,32 +657,6 @@
             <element signature="e#2125#2126#0" expanded="true" />
             <element signature="e#2171#2172#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/StatusDialog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="39" column="16" selection-start-line="39" selection-start-column="16" selection-end-line="39" selection-end-column="16" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1057#1058#0" expanded="true" />
-            <element signature="e#1101#1102#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="26" column="14" lean-forward="true" selection-start-line="26" selection-start-column="14" selection-end-line="26" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/DefaultNewModelFileAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="83" lean-forward="true" selection-start-line="83" selection-end-line="83" />
         </state>
       </provider>
     </entry>
@@ -769,48 +698,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/prompts/xunitPrompt.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1140">
-          <caret line="3" column="7" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/prompts/xflowPrompt.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/prompts/xstatePrompt.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="5" selection-start-line="4" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/prompts/headerPrompt.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" column="54" selection-start-line="4" selection-start-column="54" selection-end-line="4" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/SearchModelAction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="76">
@@ -839,22 +726,155 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
+    <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/tools/RedoAction.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="24" column="59" selection-start-line="24" selection-start-column="59" selection-end-line="24" selection-end-column="59" />
+        <state relative-caret-position="361">
+          <caret line="26" column="44" selection-start-line="26" selection-start-column="44" selection-end-line="26" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/tools/UndoAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="31" selection-start-line="31" selection-end-line="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-impl.jar!/com/intellij/openapi/application/impl/ApplicationImpl.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="312">
+          <caret line="314" selection-start-line="314" selection-end-line="314" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeConstants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/DiagramEditor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="36" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/httpclient-4.5.6.jar!/org/apache/http/impl/execchain/HttpResponseProxy.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="798">
+          <caret line="60" selection-start-line="60" selection-end-line="60" />
+          <folding>
+            <element signature="e#1828#1829#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/StatusDialog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="38" selection-start-line="38" selection-end-line="38" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/DefaultNewModelFileAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="464">
+          <caret line="86" column="21" selection-start-line="86" selection-start-column="21" selection-end-line="86" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/ModifyModelAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="740">
+          <caret line="60" column="81" selection-start-line="60" selection-start-column="81" selection-end-line="60" selection-end-column="81" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/prompts/xstatePrompt.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="1" column="20" lean-forward="true" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/prompts/xflowPrompt.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="1" column="20" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/prompts/xdecisionPrompt.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/prompts/xunitPrompt.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="646">
+          <caret line="49" column="5" lean-forward="true" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/prompts/headerPrompt.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/xrosstools/idea/extension/modelgen/CozeGenerateModelExtension.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="258" selection-start-line="258" selection-end-line="258" />
+        <state relative-caret-position="328">
+          <caret line="204" column="8" selection-start-line="204" selection-start-column="8" selection-end-line="204" selection-end-column="8" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#7461#7462#0" expanded="true" />
             <element signature="e#7508#7509#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/prompts/xbehaviorPrompt.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="57" column="14" lean-forward="true" selection-start-line="57" selection-start-column="14" selection-end-line="57" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../xcommon/com.xrosstools.idea.gef/src/com/xrosstools/idea/gef/EditorPanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="674">
+          <caret line="345" column="57" lean-forward="true" selection-start-line="345" selection-start-column="57" selection-end-line="345" selection-end-column="57" />
+          <folding>
+            <element signature="e#12614#12615#0" expanded="true" />
+            <element signature="e#16716#16717#0" expanded="true" />
+            <element signature="e#38747#38748#0" expanded="true" />
+            <element signature="e#38813#38814#0" expanded="true" />
+            <element signature="e#38881#38882#0" expanded="true" />
+            <element signature="e#38958#38959#0" expanded="true" />
+            <element signature="e#39038#39039#0" expanded="true" />
+            <element signature="e#39112#39113#0" expanded="true" />
+            <element signature="e#39193#39194#0" expanded="true" />
+            <element signature="e#39273#39274#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="14" column="33" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
         </state>
       </provider>
     </entry>

@@ -1,10 +1,10 @@
 # xdecision生成规范
-xdecision是决策树模型
+xdecision是决策树模型，一个模型只包含一个决策树
+
 ## XML格式规范
-一个模型文件只包含一个决策树
 - 开头固定：`<?xml version="1.0" encoding="UTF-8"?>`：必须完整输出
 - `<decision_tree alignment="0.5" layout="0">`：根节点（父节点，内部包含'<comments>'节点，`<parser>`节点，`<evaluator>`节点，`<user_defined_types>`节点，`<user_defined_enums>`节点，`<constants>`节点，`<factors>`节点，`<nodes>`节点，`<decisions>`节点)
-  - `<comments>模型简述<comments/>`：模型简述（字符串，选填）
+  - `<comments>模型描述<comments/>`：模型描述（字符串，必填），概括用户需求的核心思想
   - `<parser>Java类全名，缺省为`com.xrosstools.xdecision.ext.XrossEvaluator`</parser>`：表达式解析器
   - `<evaluator>Java类全名，缺省为`com.xrosstools.xdecision.ext.XrossEvaluator`</evaluator>`：表达式求值器
   - `<user_defined_types/>`：目前用不到，请原样输出
@@ -12,6 +12,7 @@ xdecision是决策树模型
   - `<factors>`：决策因素列表
     - `<factor id="决策因素标识符，例如`Age`" index="决策因素的索引值，从0开始" type="决策因素的数据类型，例如String"/>`：决策因素，由用户提供的用于对决策路径进行判断选择的变量
       - 决策因素标识符必须为英文，符合Java标识符规范，如果在用户原文中使用中文，必须翻译为英文
+      - 决策因素标识符在决策因素列表中必须唯一
       - `type`属性可选范围为
         - `String`：字符串类型
         - `Number`：所有数字类型，包括整型和浮点
@@ -32,6 +33,7 @@ xdecision是决策树模型
             - `IS NOT NULL`：是否不为空值
             - `IS TRUE`：是否为真
             - `IS FALSE`：是否为假
+            - 注意单值判断时，`expression`属性为空，例如`<path expression="" node_index="1" operator="IS TRUE"/>``
           - 两值比较：
             - `==`：等于
             - `<>`：不等于
@@ -56,6 +58,7 @@ xdecision是决策树模型
           - `NOT IN`：等于
   - `<decisions>`：决策列表
     - `<decision id="决策标识符，例如`decision0`" index="决策索引，从0开始"/>`：决策
+      - 决策标识符在决策列表中必须唯一
   - `<constants>`：用户自定义常量列表
     - `<constant id="用户自定义常量标识符，例如`Above20`" type="常量数据类型，例如`String`" value="常量值，例如`above 20`"/>`：用户自定义常量
       - `type`属性可选范围为
@@ -65,13 +68,7 @@ xdecision是决策树模型
         - `Date`:日期类型，例如`Mon Dec 15 15:49:48 CST 2025`
 
 ## XML格式限制
-- 语言要求
-  - 模型文件的description节点应该包含用户需求的核心思想
-  - 根据用户输入的主要语言决定`comments`、`label`等文本字段的语言（中文/英文）。用户有明确要求时，优先遵循其要求。
-  - 除XML元素外的其他内容如包含特殊字符`<`、`>`、`&`等，需使用XML转义字符。例如`<`，替换为`&lt`
-  - `id`可以是任意字符串，只要唯一
 - 格式要求
-  - 生成的模型文本应该格式友好，父子节点间缩进为1个空格，忽略示例中不一致格式
   - 表达式中的字符串值应该用``进行标志，以和其他类型区分，例如字符串值"abc"必须表示为`abc`
   - 表达式中的数值类型和对决策因素的引用直接输出，无需特殊标记
 

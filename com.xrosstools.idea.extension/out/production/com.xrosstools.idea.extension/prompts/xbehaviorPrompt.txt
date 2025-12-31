@@ -1,13 +1,13 @@
 # xbehavior生成规范
-xbehavior是行为树模型
+xbehavior是行为树模型，一个模型可包含多个行为树
+
 ## XML格式规范
-一个xbehavior模型可包含多个行为树
 - 开头固定：`<?xml version="1.0" encoding="UTF-8"?>`：必须完整输出
 - `<behavior_tree evaluator="表达式求值器，缺省为`com.xrosstools.xbehavior.XpressionEvaluator`">`
-  - `<description>`：模型描述（选填）
+  - `<description>`：模型描述（字符串，必填），概括用户需求的核心思想
   - `<nodes>`：节点列表，每个节点按照索引进行区分，而非名字
     - `<sequence name="节点名" reactive="是否可以重新激活，缺省为false"/>`：顺序节点。该节点会顺序执行每个子节点，当**所有**子节点返回StatusEnum.SUCCESS时，将返回StatusEnum.SUCCESS；如果任何一个节点返回FAILURE，则返回FAILURE；如果某节点返回RUNNING，则返回RUNNING
-      - 注意顺序节点和下面的选择节点，并发节点都是复合节点，可连接1到多个子节点
+      - 注意顺序节点和下面的选择节点，并发节点都是复合节点，必须连接多个子节点
       - StatusEnum是状态枚举，包括SUCCESS，FAILURE和RUNNING三个枚举值。后继提到枚举值时或省略StatusEnum
       - `reactive`属性为是否采用Reactive模式， 如果为`true`，则当子节点返回StatusEnum.RUNNING时，下一次tick从第一个子节点开始依次tick，否则从上一次返回RUNNING的子节点开始tick
         - `name`属性可选，对于标志子树的根节点必选，非根节点可省略，下同
@@ -20,7 +20,7 @@ xbehavior是行为树模型
         - `SOME`，给定Count数量的节点都返回SUCCESS
       - `count`属性只有当Mode为SOME时，才会显示其值为需要返回SUCCESS的子节点的最小数值
     - `<inverter name="节点名"/>`：倒转节点。对子节点的返回值取反，子节点返回SUCCESS时，返回FAILURE；子节点返回FAILURE时，返回SUCCESS；子节点返回RUNNING时。返回RUNNING
-      - 注意倒转节点和下面的重复节点，重试节点，等待节点，强制成功节点，强制失败节点都是装饰节点，可连接最多1个子节点
+      - 注意倒转节点和下面的重复节点，重试节点，等待节点，强制成功节点，强制失败节点都是装饰节点，必须连接1个子节点
     - `<repeat count="重复次数" mode="MAX_ATTEMPT" name="节点名" repeat_until_failure="是否在失败时终止，缺省为`true`"/>`：基于最大重复次数的重复节点。按照重复次数重复调用子节点，直到节点返回FAILURE或满足一定条件
     - `<repeat count="重复时长" mode="TIMEOUT" name="节点名" repeat_until_failure="是否在失败时终止，缺省为`true`" time_unit="时长单位"/>`：基于最大重复时长的重复节点。按照重复时长重复调用子节点，直到节点返回FAILURE或满足一定条件
       - `time_unit`属性取值范围为Java中TimeUnit的枚举值，下同
@@ -30,7 +30,7 @@ xbehavior是行为树模型
     - `<force_success name="force sucess"/>`：强制成功节点。无论子节点返回SUCCESS或FAILURE，都返回SUCCESS；子节点返回RUNNING时将返回RUNNING
     - `<force_failure name="force failure"/>`：强制失败节点。无论子节点返回SUCCESS或FAILURE，都返回SUCCESS；子节点返回RUNNING时将返回RUNNING
     - `<condition implementation="回调Java类全名" mode="CALLBACK" name="节点名"/>`：基于回调的条件节点。该节点根据回调函数返回值是true还是false来决定返回SUCCESS或者FAILURE
-      - 注意从条件节点开始都是基础节点，该类型节点为叶子节点，无子节点
+      - 注意从条件节点开始都是基础节点，不可连接子节点
     - `<condition left_expression="左侧表达式（必填），例如`A.isEmpty()`" mode="EXPRESSION" name="节点名" operator="比较符" right_expression="右侧表达式（选填）"/>`：基于表达式的条件节点。该节点根据表达式的值是true还是false来决定返回SUCCESS或者FAILURE
       - `operator`属性可选值为：
         - 单值判断（无需`right_expression`）：
@@ -64,26 +64,20 @@ xbehavior是行为树模型
     - `  <action asynchronous="true" name="节点名" time_unit="时长单位" timeout="超时时长"/>`：同步模式的回调节点，与重复节点类似需设置超时相关配置
     - `<fixed_status name="节点名" status="节点状态"/>`：固定状态节点，返回StatusEnum
     - `<sleep count="睡眠时长" name="节点名" time_unit="时长单位"/>`：睡眠节点，与重复节点类似需设置超时相关配置
-    - `<subtree name="节点名" subtree="子树名字"/>`：子树调用节点。当前模型所有设置了Name属性的顶层节点都可以选择
+    - `<subtree name="节点名" subtree="子树名字"/>`：子树调用节点。当前模型除包含自身的行为树外的其他行为树可作为子树选择
   - `<connections>`：连接列表
-    - `<connection source_index="源节点索引" target_index="目标节点索引"/>`：节点连接
+    - `<connection source_index="源节点索引" target_index="目标节点索引"/>`：节点连接，索引从0开始
 
 ## XML格式限制
-- 语言要求
-  - 模型文件的description节点应该包含用户需求的核心思想
-  - 根据用户输入的主要语言决定描述、标签等文本字段的语言（中文/英文）。用户有明确要求时，优先遵循其要求。
-  - 除XML元素外的其他内容如包含特殊字符`<`、`>`、`&`等，需使用XML转义字符。例如`<`，替换为`&lt`
-- 格式要求
-  - 生成的模型文本应该格式友好，父子节点间缩进为1个空格，忽略示例中不一致格式
-- 节点类型与连接限制
-  - 节点间是树形关系，既任何节点最多只能有一个父节点
-  - 复合节点。包括Sequence，Selector和Parallel。复合节点为中间结点，可以连接1到多个子节点。
-  - 装饰节点。包括倒转节点，重复节点，重试节点，等待节点，强制成功节点，强制失败节点。装饰节点为中间节点，可连接最多1个子节点
-  - 基础节点。包括条件节点，回调节点，固定状态节点，睡眠节点和子树节点。基础节点为叶子节点，无子节点
+- 连接限制
+  - 节点间是树形关系，既任何节点只能有0个或1个父节点
+  - 顺序节点，选择节点和并发节点必须连接多个子节点
+  - 倒转节点，重复节点，重试节点，等待节点，强制成功节点，强制失败节点，必须连接1个子节点
+  - 条件节点，回调节点，固定状态节点，睡眠节点和子树节点，不可以连接任何子节点
 
 ## 模型生成过程和规则：
 * 提取信息：模型描述，节点和连接信息。
-* 对于重复或者公共的行为可提升为顶层树，并通过子树进行复用
+* 对于重复或者公共的行为可创建为单独的行为树，并通过子树节点进行引用，子树节点仅可按名字引用其他行为树
 
 ## 示例
 ### 示例1：xbehavior模型示例

@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.xrosstools.idea.gef.extensions.GenerateModelExtension;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 
 
 public class CozeGenerateModelExtension implements CozeConstants, GenerateModelExtension {
-    private static final Logger LOG = Logger.getInstance(CozeGenerateModelExtension.class);
     private static final String USER_ID = "xross_tools_user";
     private static final String TOKEN_HEADER = "Bearer ";
 
@@ -159,7 +158,6 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
     }
 
     private void failed(Exception e) {
-        LOG.error(e);
         Messages.showErrorDialog("Failed when calling API: " + e.getMessage(), "Error");
     }
 
@@ -202,7 +200,10 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
             JsonObject  element = data.get(i).getAsJsonObject();
             if(ANSWER.equals(element.get(TYPE).getAsString())) {
                 String rawContent = element.get(CONTENT).getAsString();
-                return rawContent.substring(6+1, rawContent.length() - (3+1));
+                if(rawContent.startsWith(MODEL_START))
+                    return rawContent;
+                Messages.showErrorDialog(rawContent, "The generated content is invalid");
+                throw new IllegalArgumentException("Wrong model content: " + rawContent);
             }
         }
 
@@ -227,23 +228,10 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
                                 return;
                             done.set(true);
                             String finalResponse = getAnswer(getRequest(apiUrl + GET_ANSWER_CMD + conversationQuery));
-                            LOG.info(finalResponse);
-
-                            String finalModel;
-                            if(finalResponse.startsWith(MODEL_START))
-                                finalModel = finalResponse;
-                            else if (finalResponse.contains(MODEL_START))
-                                finalModel = finalResponse.substring(finalResponse.indexOf(MODEL_START));
-                            else {
-                                System.out.println("Format issue detected:");
-                                System.out.println(finalResponse);
-                                finalModel = checkForXbehavior(finalResponse);
-                            }
-
                             SwingUtilities.invokeLater(() -> dialog.dispose());
-                            ApplicationManager.getApplication().invokeLater(() -> callback.accept(finalModel));
+                            ApplicationManager.getApplication().invokeLater(() -> callback.accept(finalResponse));
                         }else {
-                            SwingUtilities.invokeLater(() -> dialog.setMessage(String.format("Generating status: %s .... %d", status, i++)));
+                            SwingUtilities.invokeLater(() -> dialog.setMessage(String.format("Current status: %s .... %d", status, i++)));
                         }
                     } catch (Exception e) {
                         ApplicationManager.getApplication().invokeLater(() -> failed(e));
@@ -253,19 +241,6 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
 
             }
         };
-    }
-
-    private String checkForXbehavior(String finalResponse) {
-        String headerSeg = "encoding=\"UTF-8\"?>";
-        if(!(XBEHAVIOR.equalsIgnoreCase(modelType) && finalResponse.contains(headerSeg)))
-            return finalResponse;
-
-        String finalModel = MODEL_START + finalResponse.substring(finalResponse.indexOf(headerSeg) + headerSeg.length());
-
-        if(finalModel.endsWith("</behavior_t"))
-            finalModel += "ree>";
-
-        return finalModel;
     }
 
     static class ChatRequest {

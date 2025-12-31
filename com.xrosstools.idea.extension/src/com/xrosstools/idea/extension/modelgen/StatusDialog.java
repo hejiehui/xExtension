@@ -13,7 +13,7 @@ public class StatusDialog extends DialogWrapper {
 
     public StatusDialog() {
         super(true); // 设置为模态对话框
-        setTitle("Generate model");
+        setTitle("Generating model");
         setResizable(false);
         init();
     }

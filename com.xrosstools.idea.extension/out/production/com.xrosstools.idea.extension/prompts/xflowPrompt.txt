@@ -1,10 +1,10 @@
 # xflow生成规范
-xflow是工作流模型
+xflow是工作流模型，一个模型可以包含多个工作流模型
+
 ## XML格式规范
-一个模型文件可以包括多个工作流模型
 - 开头固定：`<?xml version="1.0" encoding="UTF-8"?>`：必须完整输出
 - `<xflow>`：根节点（父节点，内部包含'<description>'节点，`<properties>`节点，多个`<flow>`节点)
-  - `<description>模型文件描述<description/>`：模型文件描述（字符串，选填）
+  - `<description>模型文件描述<description/>`：模型文件描述（字符串，必填），概括用户需求的核心思想
   - `<properties>`：自定义属性列表节点（父节点，内部包含多个`<property>`节点，flow元素，活动节点和路由节点也可以包括自定义属性列表）
     -  `<property key="属性名" type="属性数据类型" value="属性值"/>`：单个用户自定义属性（key为属性名，必填；type为属性类型，必选，缺省为`String`；value为属性值，必填）
       - type可选范围是：`String`,`Integer`,`Long`,`Float`,`Double`,`Boolean`,`Date`,`Time unit`
@@ -32,12 +32,6 @@ xflow是工作流模型
         - style的可选范围是：`HORIZONTAL_LIGHTNING`，`VERTICAL_LIGHTNING`， VERTICAL_RIGHT_ANGLE`，`HORIZONTAL_RIGHT_ANGLE`，        	`VERTICAL_HOMOLATERAL`，`HORIZONTAL_HOMOLATERAL`，`DEFAULT`
 
 ## XML格式限制
-- 语言要求
-  - 模型文件的description节点应该包含用户需求的核心思想，既主要功能，自定义属性可以省略
-  - 根据用户输入的主要语言决定`description`、`label`等文本字段的语言（中文/英文）。用户有明确要求时，优先遵循其要求。
-  - label或description如包含特殊字符`<`、`>`、`&`等，需使用XML转义字符。例如`<`，替换为`&lt`
-- 格式要求
-  - 生成的模型文本应该格式友好，中父子节点间缩进为1个空格
 - 活动和路由节点属性要求
   - `id`属性是该节点标识符，必填，格式符合Java标识符规范，例如`generate_report`，并且在同级节点中保持唯一
   - `label`属性是该节点功能描述性标签，选填，例如`生成报表`

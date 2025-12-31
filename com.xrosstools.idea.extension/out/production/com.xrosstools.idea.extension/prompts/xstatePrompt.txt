@@ -1,25 +1,27 @@
 # xstate生成规范
-xstate是状态机模型
+xstate是状态机模型，一个模型可以包含多个状态机模型
+
 ## XML格式规范
-一个模型文件可以包括多个状态机模型
 - 开头固定：`<?xml version="1.0" encoding="UTF-8"?>`：必须完整输出
 - `<state_machine_diagram>`：根节点（父节点，内部包含'<name>'节点，`<description>`节点，`<state_machines>`节点)
   - `<name>名字<name/>`：模型文件名字（字符串，选填）
-  - `<description>模型文件描述<description/>`：模型文件描述（字符串，选填）
+  - `<description>模型文件描述<description/>`：模型文件描述（字符串，选填），概括用户需求的核心思想
   - `<state_machines>`：状态机根节点（父节点，内部包含多个`<state_machine>`节点）
     -`<state_machine>`：状态机节点（父节点，包含'<name>'节点，`<description>`节点，`<states>`,`<events>`，`<transitions>`节点）
-      - `<name>状态机名字<description/>`：状态机名字（字符串，必填）
+      - `<name>状态机名字<description/>`：状态机名字（字符串，必填），在所有状态机中唯一
       - `<description>状态机描述<description/>`：状态机描述（字符串，选填）
       - `<states>`：状态节点列表（父节点，内部可包含状态节点：`<start>`，`<end>`，`<state>`）
         - `<start id="start" x_loc="x坐标" y_loc="y坐标">`：开始节点（start节点的`id`属性缺省为`start`），标志状态机开始
         - `<end id="end" x_loc="x坐标" y_loc="y坐标"/>`：结束节点（`id`属性缺省为`end`），标志状态机结束
         - `<state id="状态标识符，例如`normal_state`（必填）" Label="状态标签，例如`normal_state`（选填）" x_loc="x坐标" y_loc="y坐标">`：状态节点
+          - id属性的格式都要符合Java标识符规范并且在同级节点中保持唯一
           - `<description>状态节点描述（选填）</description>`
           - `<reference>子状态机name（选填）</reference>`
           - `<entry_action>进入当前状态触发器（Java类全名，选填）</entry_action>`
           - `<exit_action>离开当前状态触发器（Java类全名，选填）</exit_action>`
     - `<events>`：事件列表（父节点，包含`<event>`节点）
       - `<event id="事件标志符（必填，例如`email_recieved`）" Label="事件标签（选填，例如`收到邮件`）">事件描述（选填）</event>`
+        - id属性的格式都要符合Java标识符规范并且在同级节点中保持唯一
       - `<transitions>`：状态节点连接列表（父节点，包含`<transition>`节点）
         - `<transition event_id="连接标识符（必填）" source_id="源节点id（必填）" style="连线风格标识符" target_id="目标节点id（必填）" transit_action="状态转移触发器（Java类全名，选填）" transit_guard="状态转移条件判断（Java类全名，选填）"/>`：
           - style属性的可选范围是：`direct`,`heightFirst`, `widthFirst`
@@ -28,13 +30,6 @@ xstate是状态机模型
             - `widthFirst`：从源节点先垂直延申到目标节点边缘，再水平延申到目标节点
 
 ## XML格式限制
-- 语言要求
-  - 模型文件的description节点应该包含用户需求的核心思想
-  - 根据用户输入的主要语言决定`description`、`label`等文本字段的语言（中文/英文）。用户有明确要求时，优先遵循其要求。
-  - label或description如包含特殊字符`<`、`>`、`&`等，需使用XML转义字符。例如`<`，替换为`&lt`
-- 格式要求
-  - 生成的模型文本应该格式友好，中父子节点间缩进为1个空格
-  - state和event节点的id属性的格式都要符合Java标识符规范并且在同级节点中保持唯一
 - 可见性
   - state和event的可见性仅限于所属的state_machine
 - 节点布局规则

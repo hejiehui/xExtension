@@ -3,7 +3,7 @@
   <name>Xross Tools Extension</name>
   <version>2025.3.0</version>
   <vendor email="he_jiehui@163.com" url="https://www.xrosstools.com">Xross Tools</vendor>
-  <product-descriptor code="PXTENSION" release-date="20251018" release-version="20253"/>
+  <product-descriptor code="PXTENSION" release-date="20251231" release-version="20253"/>
 
   <description><![CDATA[
       Xross Tools Extension provides addons to x-series tools, such as <em>xunit, xstate, xdecision, xbehavior and xflow</em>.<br>
