@@ -1,19 +1,21 @@
 # Xross Tool Extension简介
 本插件是为其他模型编辑器插件提供功能扩展
 
-欢迎大家给我反馈想要的扩展功能
-
 [xExtension视频演示](https://www.bilibili.com/video/BV1kt1WBnEr7/)
 
 # 关于收费
 该插件为一次性付费插件，没有年费和后期升级费用，如果愿意支持我的开源工作，请通过插件市场付费下载。可免费试用1个月
 
-个人版定价5欧元，企业版定价25欧元，为较低的插件价格
+个人版定价5欧元，大致相当于2杯咖啡（我每日早晚的氮气加速），企业版定价25欧元，为较低的插件价格
 
-本插件计划始终保持最多三个扩展功能，如有新功能，则将移动部分老功能到Xross GEF中作为免费版本提供。
+本插件计划始终保持最多三个扩展功能，如有新功能，则将移动部分收费功能到[Xross GEF](https://github.com/hejiehui/xcommon/tree/master/com.xrosstools.idea.gef)插件底座中免费提供
+
+欢迎大家给我反馈想要的扩展功能
 
 # 关于开源
-如果希望学习，也提供源代码，可以从源代码创建该插件，方法为右键选择Prepare for deployment：
+收费的目的不是希望搞闭源，如果你想学习该插件如何开发，可以随时自由的访问源代码
+
+你也可以方便的从源代码创建该插件，方法为右键选择Prepare for deployment：
 <img width="814" height="1035" alt="image" src="https://github.com/user-attachments/assets/f514754f-63e4-4a0b-aa63-1c7edd16d73e" />
 
 ## 准备工作
