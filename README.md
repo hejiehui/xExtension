@@ -31,8 +31,6 @@
 <img width="421" height="263" alt="image" src="https://github.com/user-attachments/assets/a003416e-324c-4e07-ab1a-9f5f7fd909ee" />
 
 ## 模型修改
-【注意，修改功能目前还在审核，近期发布】
-
 如果想利用AI修改模型，可点击工具栏中的modify按钮，输入修改意见即可
 <img width="920" height="865" alt="image" src="https://github.com/user-attachments/assets/d0d10ce3-d0ee-499d-bef1-34c989219c11" />
 
