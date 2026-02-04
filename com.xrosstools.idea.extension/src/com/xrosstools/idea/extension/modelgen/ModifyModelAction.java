@@ -6,8 +6,6 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.messages.MessageDialog;
 import com.xrosstools.idea.extension.ExtensionIcons;
 import com.xrosstools.idea.gef.EditorPanel;
 import org.jetbrains.annotations.NotNull;
@@ -45,8 +43,9 @@ public class ModifyModelAction extends AnAction {
         if (dialog.showAndGet()) {
             String requirement = dialog.getText();
             String modelText = FileDocumentManager.getInstance().getDocument(editorPanel.getFile()).getText();
+            boolean mode = dialog.isStreamMode();
             String request = String.format(MODIFY_REQUEST_TEMPLATE, requirement, modelText);
-            modelExtension.generateModel(request, generated->update(anActionEvent.getProject(), generated));
+            modelExtension.generateModel(request, generated->update(anActionEvent.getProject(), generated), mode);
         }
     }
 

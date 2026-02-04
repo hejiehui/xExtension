@@ -1,33 +1,69 @@
 package com.xrosstools.idea.extension.modelgen;
 
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTextArea;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StatusDialog extends DialogWrapper {
     private JLabel statusLabel;
     private Timer timer;
+    private boolean streamMode;
+    private JTextArea descriptionArea;
+    private AtomicBoolean cancelFlag;
 
-    public StatusDialog() {
+    public StatusDialog(boolean streamMode, AtomicBoolean cancelFlag) {
         super(true); // 设置为模态对话框
         setTitle("Generating model");
         setResizable(false);
+        this.streamMode = streamMode;
+        this.cancelFlag = cancelFlag;
         init();
+    }
+
+    @Override
+    protected Action[] createActions() {
+        // 返回只包含Cancel按钮的数组
+        return new Action[]{getCancelAction()};
     }
 
     @Override
     protected JComponent createCenterPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setPreferredSize(new Dimension(400, 100));
 
         statusLabel = new JLabel("Generating(may take a few seconds)....", SwingConstants.CENTER);
         statusLabel.setFont(new Font(statusLabel.getFont().getName(), Font.PLAIN, 14));
 
-        panel.add(statusLabel, BorderLayout.CENTER);
+        if(streamMode) {
+            panel.setPreferredSize(new Dimension(400, 600));
+            panel.add(statusLabel, BorderLayout.NORTH);
+
+            descriptionArea = new JBTextArea(20, 50);
+            descriptionArea.setLineWrap(true);
+            descriptionArea.setWrapStyleWord(true);
+
+            JBScrollPane scrollPane = new JBScrollPane(descriptionArea);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+            panel.add(scrollPane, BorderLayout.CENTER);
+        }else {
+            panel.setPreferredSize(new Dimension(400, 100));
+            panel.add(statusLabel, BorderLayout.CENTER);
+        }
+
         return panel;
+    }
+
+    @Override
+    public void doCancelAction() {
+        cancelFlag.set(true);
+        super.doCancelAction();
     }
 
     @Override
@@ -39,6 +75,10 @@ public class StatusDialog extends DialogWrapper {
 
     public void setMessage(String message) {
         statusLabel.setText(message);
+    }
+
+    public void appendFeedback(String feedback) {
+        descriptionArea.append(feedback);
     }
 
     /**

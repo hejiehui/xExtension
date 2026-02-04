@@ -1,6 +1,7 @@
 package com.xrosstools.idea.extension.modelgen;
 
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBScrollPane;
 
 import javax.swing.*;
@@ -8,6 +9,7 @@ import java.awt.*;
 
 public class ModifyModelDialog extends DialogWrapper {
     private JTextArea textArea;
+    private JBCheckBox modeCheckBox;
     private String initialText;
 
     public ModifyModelDialog(String initialText) {
@@ -40,11 +42,18 @@ public class ModifyModelDialog extends DialogWrapper {
         scrollPane.setBorder(BorderFactory.createEtchedBorder());
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        modeCheckBox = new JBCheckBox("Stream mode");
+        panel.add(modeCheckBox, BorderLayout.SOUTH);
+
         return panel;
     }
 
     public String getText() {
         return textArea.getText();
+    }
+
+    public boolean isStreamMode() {
+        return modeCheckBox.isSelected();
     }
 
     @Override

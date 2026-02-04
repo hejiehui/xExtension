@@ -4,12 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.xrosstools.idea.gef.extensions.GenerateModelExtension;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -18,10 +17,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +35,9 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
 
     private static final String CONVERSATION_CHAT_ID_TPL = "?conversation_id=%s&chat_id=%s";
 
-    private static final int TIMEOUT = 15000;
-
-    private static final String STATUS = "status";
     private static final String COMPLETED = "completed";
+    private static final String IN_PROGRESS = "in_progress";
+    private static final String FAILED = "failed";
 
     private static final String TYPE = "type";
     private static final String ANSWER = "answer";
@@ -81,54 +79,110 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
 
     @Override
     public void generateModel(String description, Consumer<String> callback) {
+        generateModel(description, callback, false);
+    }
+
+    @Override
+    public void generateModel(String description, Consumer<String> callback, boolean streamMode) {
         //Reload config in case of old version of GEF
         isGenerateModelSupported(modelType);
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Calling Coze API", true) {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                indicator.setText("Sending request to Coze API...");
-
-                try {
-                    String promptPayload = buildPromptPayload(description);
-
-                    String response = postCozeChatAPI(promptPayload);
-
-                     String conversationQuery = buildConversationQuery(response);
-
-                    // 切换到UI线程更新界面
-                    ApplicationManager.getApplication().invokeLater(() -> {
-                        StatusDialog dialog = new StatusDialog();
-                        dialog.startPolling(createCheckStatusTask(conversationQuery, dialog, callback));
-                        dialog.show();
-                    });
-
-                } catch (Exception e) {
-                    // 错误处理
-                    ApplicationManager.getApplication().invokeLater(() -> {
-                        failed(e);
-                    });
-                }
-            }
-        });
+        if(streamMode)
+            generateWithStreamMode(description, callback);
+        else
+            generateWithoutStreamMode(description, callback);
     }
 
-    private String postCozeChatAPI(String jsonPayload) throws IOException {
+    private void generateWithStreamMode(String description, Consumer<String> callback) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            AtomicBoolean cancelFlag = new AtomicBoolean(false);
+            StatusDialog dialog = new StatusDialog(true, cancelFlag);
+
+            // 在后台线程执行HTTP请求
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                String promptPayload = buildPromptPayload(description, true);
+                generateWithStreamMode(promptPayload, callback, dialog, cancelFlag);
+            });
+
+            // 显示对话框（阻塞直到关闭）
+            dialog.show();
+        });
+
+    }
+    private void generateWithStreamMode(String promptPayload, Consumer<String> callback, StatusDialog dialog, AtomicBoolean cancelFlag) {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(apiUrl + CHAT_CMD);
             setHeader(httpPost);
-            StringEntity entity = new StringEntity(jsonPayload, StandardCharsets.UTF_8);
-            httpPost.setEntity(entity);
+            StringEntity strEntity = new StringEntity(promptPayload, StandardCharsets.UTF_8);
+            httpPost.setEntity(strEntity);
 
             try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-                int statusCode = response.getStatusLine().getStatusCode();
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    // 3. 逐行读取流式响应
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), StandardCharsets.UTF_8));
+                    String line;
+                    String fullResponse = null;
 
-                return getResponseBody(statusCode, response);
+                    boolean completed = false;
+                    while ((line = reader.readLine()) != null && fullResponse == null && !cancelFlag.get()) {
+                        if (line.startsWith("event")) {
+                            completed = handleStreamEvent(line, dialog, completed);
+                        } else if (line.startsWith("data")) {
+                            fullResponse = handleStreamData(line, dialog, completed);
+                        }
+                    }
+
+                    EntityUtils.consume(entity);
+
+                    if(cancelFlag.get() || fullResponse == null)
+                        return;
+
+                    appendFeedback(dialog, "\nGeneration completed, please hold on a second...");
+                    close(dialog);
+                    generate(callback, fullResponse);
+                }
             }
+
+        } catch (Exception e) {
+            // 错误处理
+            ApplicationManager.getApplication().invokeLater(() -> failed(e));
         }
     }
 
-    private String  getRequest(String url) throws IOException {
+    private void generateWithoutStreamMode(String description, Consumer<String> callback){
+        try {
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                String promptPayload = buildPromptPayload(description, false);
+                HttpPost httpPost = new HttpPost(apiUrl + CHAT_CMD);
+                setHeader(httpPost);
+                StringEntity entity = new StringEntity(promptPayload, StandardCharsets.UTF_8);
+                httpPost.setEntity(entity);
+
+                try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                    int statusCode = response.getStatusLine().getStatusCode();
+
+                    String responseBody = checkResponse(statusCode, response);
+
+                    String conversationQuery = buildConversationQuery(responseBody);
+
+                    // 切换到UI线程更新界面
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        AtomicBoolean cancelFlag = new AtomicBoolean(false);
+                        StatusDialog dialog = new StatusDialog(false, cancelFlag);
+                        dialog.startPolling(createCheckStatusTask(conversationQuery, dialog, callback, cancelFlag));
+                        dialog.show();
+                    });
+                }
+            }
+
+        } catch (Exception e) {
+            // 错误处理
+            ApplicationManager.getApplication().invokeLater(() -> failed(e));
+        }
+    }
+
+    private String request(String url) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
             HttpGet httpGet = new HttpGet(url);
@@ -136,12 +190,12 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
 
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 int statusCode = response.getStatusLine().getStatusCode();
-                return getResponseBody(statusCode, response);
+                return checkResponse(statusCode, response);
             }
         }
     }
 
-    private String getResponseBody(int statusCode, CloseableHttpResponse response) throws IOException {
+    private String checkResponse(int statusCode, CloseableHttpResponse response) throws IOException {
         String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
         if (statusCode == 200) {
             return responseBody;
@@ -162,12 +216,12 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
     }
 
     // 手动构建JSON请求体
-    private String buildPromptPayload(String content) {
+    private String buildPromptPayload(String content, boolean streamMode) {
         // 构建请求JSON数据
         ChatRequest chatRequest = new ChatRequest();
         chatRequest.bot_id = botId;
         chatRequest.user_id = USER_ID;
-        chatRequest.stream = false;
+        chatRequest.stream = streamMode;
         chatRequest.auto_save_history = true;
         chatRequest.additional_messages = new ArrayList<>();
         chatRequest.additional_messages.add(new Message(content));
@@ -181,17 +235,6 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
         return String.format(CONVERSATION_CHAT_ID_TPL, chatResponse.data.conversation_id, chatResponse.data.id);
     }
 
-    private boolean isAnswerCompleted(String status) {
-        return COMPLETED.equals(status);
-    }
-
-    private String getStatus(String response) {
-        Gson gson = new Gson();
-        JsonObject jsonResponse = gson.fromJson(response, JsonObject.class);
-        JsonObject data = jsonResponse.getAsJsonObject("data");
-        return data.get(STATUS).getAsString();
-    }
-
     private String getAnswer(String response) {
         Gson gson = new Gson();
         JsonObject jsonResponse = gson.fromJson(response, JsonObject.class);
@@ -200,17 +243,14 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
             JsonObject  element = data.get(i).getAsJsonObject();
             if(ANSWER.equals(element.get(TYPE).getAsString())) {
                 String rawContent = element.get(CONTENT).getAsString();
-                if(rawContent.startsWith(MODEL_START))
-                    return rawContent;
-                Messages.showErrorDialog(rawContent, "The generated content is invalid");
-                throw new IllegalArgumentException("Wrong model content: " + rawContent);
+                return rawContent;
             }
         }
 
         return null;
     }
 
-    private TimerTask createCheckStatusTask(String conversationQuery, StatusDialog dialog, Consumer<String> callback) {
+    private TimerTask createCheckStatusTask(String conversationQuery, StatusDialog dialog, Consumer<String> callback, AtomicBoolean cancelFlag) {
         return new TimerTask() {
             AtomicBoolean done = new AtomicBoolean(false);
             int i = 0;
@@ -218,29 +258,127 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
             public void run() {
                 ApplicationManager.getApplication().executeOnPooledThread(() -> {
                     try {
-                        if(done.get())
+                        if(done.get() || cancelFlag.get())
                             return;
 
-                        String response = getRequest(apiUrl + GET_STATUS_CMD + conversationQuery);
-                        String status = getStatus(response);
-                        if(isAnswerCompleted(status)) {
-                            if(done.get())
+                        String responseStr = request(apiUrl + GET_STATUS_CMD + conversationQuery);
+                        StatusResponse statusResponse = gson.fromJson(responseStr, StatusResponse.class);
+                        String status = statusResponse.data.status;
+                        switch (status) {
+                            case COMPLETED:
+                                if(done.get() || cancelFlag.get())
+                                    return;
+                                done.set(true);
+                                String finalResponse = getAnswer(request(apiUrl + GET_ANSWER_CMD + conversationQuery));
+                                close(dialog);
+                                generate(callback, finalResponse);
+                                break;
+                            case IN_PROGRESS:
+                                showStatus(dialog, String.format("%s .... %d", status, i++));
+                                break;
+                            case FAILED:
+                                showStatus(dialog, String.format("%s .... %s", status, statusResponse.data.last_error.msg));
+                                dialog.stopPolling();
+                                done.set(true);
                                 return;
-                            done.set(true);
-                            String finalResponse = getAnswer(getRequest(apiUrl + GET_ANSWER_CMD + conversationQuery));
-                            SwingUtilities.invokeLater(() -> dialog.dispose());
-                            ApplicationManager.getApplication().invokeLater(() -> callback.accept(finalResponse));
-                        }else {
-                            SwingUtilities.invokeLater(() -> dialog.setMessage(String.format("Current status: %s .... %d", status, i++)));
                         }
                     } catch (Exception e) {
                         ApplicationManager.getApplication().invokeLater(() -> failed(e));
-                        SwingUtilities.invokeLater(() -> dialog.dispose());
+                        close(dialog);
                     }
                 });
 
             }
         };
+    }
+
+    private boolean handleStreamEvent(String line, StatusDialog dialog, boolean completed) {
+        if (line.startsWith("event")) {
+            String eventType = line.substring(6);
+            switch (eventType) {
+                case "conversation.chat.created":
+                    showStatus(dialog, "created");
+                    break;
+                case "conversation.chat.in_progress":
+                case "conversation.message.delta":
+                    showStatus(dialog, "in progress");
+                    break;
+                case "conversation.message.completed":
+                case "conversation.chat.completed":
+                    // 消息完成，返回完整结果
+                    showStatus(dialog, "completed");
+                    return true;
+                case "conversation.chat.failed":
+                case "error":
+                    // 错误处理
+                    showStatus(dialog, "error");
+                    break;
+            }
+        }
+        return false;
+    }
+
+    private String handleStreamData(String line, StatusDialog dialog, boolean completed) {
+        //Should never be here
+        if(line.startsWith("data:\"[DONE]\""))
+            return null;
+
+        Data data = gson.fromJson(line.substring("data:".length()), Data.class);
+        if ("error".equals(data.msg)) {
+            appendFeedback(dialog, String.format("\nError code: %s\nMessage: %s", data.code, data.msg));
+            return null;
+        }
+
+        if ("failed".equals(data.status)) {
+            appendFeedback(dialog, String.format("\nError code: %s\nMessage: %s", data.last_error.code, data.last_error.msg));
+            return null;
+        }
+
+        if(data.type == null)
+            return null;
+
+        if("answer".equals(data.type)) {
+            String content = data.content;
+            String reasoning_content = data.reasoning_content;
+
+            if(completed)
+                return content;
+            else
+                appendFeedback(dialog, content.length() == 0 ? reasoning_content : content);
+        } else {
+            if("text".equals(data.content_type))
+                appendFeedback(dialog, String.format("\n%s: %s\n", data.type, data.content_type));
+        }
+
+        return null;
+    }
+
+    private void showStatus(StatusDialog dialog, String status) {
+        ApplicationManager.getApplication().invokeLater(() -> dialog.setMessage("Current status: " + status), ModalityState.any());
+    }
+
+    private void appendFeedback(StatusDialog dialog, String feedback) {
+        ApplicationManager.getApplication().invokeLater(() -> dialog.appendFeedback(feedback), ModalityState.any());
+    }
+
+    private void close(StatusDialog dialog) {
+        ApplicationManager.getApplication().invokeLater(() -> dialog.close(DialogWrapper.OK_EXIT_CODE), ModalityState.any());
+    }
+
+    private void generate(Consumer<String> callback, String modelContent) {
+        ApplicationManager.getApplication().invokeLater(() -> callback.accept(checkAnswer(modelContent)), ModalityState.NON_MODAL);
+    }
+
+    private String checkAnswer(String rawContent) {
+        rawContent = rawContent.trim();
+        if(rawContent.startsWith("```xml") && rawContent.endsWith("```"))
+            rawContent = rawContent.substring(6, rawContent.length() - 3).trim();
+
+        if(rawContent.startsWith(MODEL_START))
+            return rawContent;
+
+        Messages.showErrorDialog(rawContent, "The generated content is invalid");
+        throw new IllegalArgumentException("Wrong model content: " + rawContent);
     }
 
     static class ChatRequest {
@@ -271,9 +409,27 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
         public String id;
     }
 
-    static class ChatResultResponse {
-        public int code;
+    static class StatusResponse {
+        public String code;
+        public Data data;
+    }
+    static class Data {
+//        public String id;
+//        public String conversation_id;
+//        public String bot_id;
+//        public String role;
+        public String type;
+        public String content;
+        public String reasoning_content;
+        public String content_type;
+        public String code;
         public String msg;
-        public List<Message> data;
+        public String status;
+        public Error last_error;
+    }
+
+    static class Error {
+        public String code;
+        public String msg;
     }
 }
