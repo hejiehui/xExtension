@@ -11,9 +11,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <em>2026.1.0</em> Revise prompts and support stream mode when generate/update model.
-      <em>2025.3.0</em> Support all x-series models, including xross behavior, unit, state and decision.
-      <em>1.0</em> Inital version, provide search and export ability.
+      <em>2026.1.0</em> Revise prompts and support stream mode when generate/update model.<br>
+      <em>2025.3.0</em> Support all x-series models, including xross behavior, unit, state and decision.<br>
+      <em>1.0</em> Inital version, provide search and export ability.<br>
     ]]>
   </change-notes>
 
