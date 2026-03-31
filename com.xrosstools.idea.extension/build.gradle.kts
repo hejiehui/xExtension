@@ -30,6 +30,7 @@ dependencies {
 
 intellijPlatform {
     instrumentCode = true
+    buildSearchableOptions = false
 
     pluginConfiguration {
         name = "Xross Tools Extension"
