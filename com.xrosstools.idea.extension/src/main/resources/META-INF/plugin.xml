@@ -1,0 +1,44 @@
+<!-- Plugin Configuration File: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.xrosstools.idea.extension</id>
+    <vendor email="he_jiehui@163.com" url="https://www.xrosstools.com">Xross Tools</vendor>
+
+    <description><![CDATA[
+      Xross Tools Extension provides addons to x-series tools, such as <em>xunit, xstate, xdecision, xbehavior and xflow</em>.<br>
+      This plugin depends on com.xrosstools.idea.gef since version 1.6.0.<br>
+    ]]></description>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.xrosstools.idea.gef</depends>
+
+    <extensions defaultExtensionNs="com.xrosstools.idea.gef">
+        <toolbarExtension implementation ="com.xrosstools.idea.extension.ToolbarExtension"/>
+        <generateModelExtension implementation ="com.xrosstools.idea.extension.modelgen.CozeGenerateModelExtension"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.xrosstools.idea.extension.modelgen.CozeAgentConfig"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="Xross.Notification.Group"
+                           displayType="BALLOON"/>
+    </extensions>
+
+    <actions>
+        <action id="Xross.TokenBot.Config"
+                class="com.xrosstools.idea.extension.modelgen.ConfigAgentAction"
+                text="Configure Agent..."
+                description="Update authentication token and Bot ID">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="Xross.TokenBot.Wizard"
+                class="com.xrosstools.idea.extension.modelgen.CreateAgentWizardAction"
+                text="Create Agent Wizard..."
+                description="Agent Configuration Wizard">
+            <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Xross.TokenBot.Config"/>
+        </action>
+    </actions>
+</idea-plugin>

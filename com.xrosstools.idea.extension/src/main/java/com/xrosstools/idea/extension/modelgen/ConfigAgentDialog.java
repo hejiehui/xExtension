@@ -75,9 +75,9 @@ public class ConfigAgentDialog extends DialogWrapper {
     }
 
     private void loadCurrentConfig() {
-        CozeAgentConfig config = CozeAgentConfig.getInstance();
+        CozeAgentConfig config = CozeGenerateModelExtension.getConfig();
         siteCombo.setSelectedItem(config.getSite() != null ? config.getSite() : "");
-        tokenField.setText(config.getToken() != null ? config.getToken() : "");
+        tokenField.setText(CozeGenerateModelExtension.getToken() != null ? CozeGenerateModelExtension.getToken() : "");
 
         xunitBotIdField.setText(config.getXunitBotId() != null ? config.getXunitBotId() : "");
         xstateBotIdField.setText(config.getXstateBotId() != null ? config.getXstateBotId() : "");
@@ -89,9 +89,9 @@ public class ConfigAgentDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         // 保存配置
-        CozeAgentConfig config = CozeAgentConfig.getInstance();
+        CozeAgentConfig config = CozeGenerateModelExtension.getConfig();
         config.setSite((String) siteCombo.getSelectedItem());
-        config.setToken(tokenField.getText().trim());
+        CozeGenerateModelExtension.setToken(tokenField.getText().trim());
 
         config.setXunitBotId(xunitBotIdField.getText().trim());
         config.setXstateBotId(xstateBotIdField.getText().trim());

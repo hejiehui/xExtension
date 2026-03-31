@@ -45,14 +45,6 @@ public class CozeAgentConfig implements PersistentStateComponent<CozeAgentConfig
         return ServiceManager.getService(CozeAgentConfig.class);
     }
 
-    public static String getToken() {
-        return PasswordSafe.getInstance().getPassword(new CredentialAttributes(SERVICE_NAME, USER_NAME));
-    }
-
-    public static void setToken(String token) {
-        PasswordSafe.getInstance().setPassword(new CredentialAttributes(SERVICE_NAME, USER_NAME), token);
-    }
-
     public String getXunitBotId() {
         return xunitBotId;
     }

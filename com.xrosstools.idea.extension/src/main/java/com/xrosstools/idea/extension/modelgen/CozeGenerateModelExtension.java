@@ -3,8 +3,18 @@ package com.xrosstools.idea.extension.modelgen;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.xrosstools.idea.gef.extensions.GenerateModelExtension;
@@ -17,15 +27,16 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 
@@ -49,32 +60,92 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
     private static final Gson gson = new Gson();
 
     private String apiUrl;
-    private String token;
+
+    private static final AtomicBoolean initialized = new AtomicBoolean(false);
+    private static final AtomicReference<String> tokenRef = new AtomicReference<>(null);
+    private static final AtomicReference<CozeAgentConfig> configRef = new AtomicReference<>(null);
+
     private String modelType;
     private String botId;
 
+    private static Set<String> notified = new HashSet<>();
+
+    private void init() {
+        if(!initialized.get()) {
+            initialized.set(true);
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                configRef.set(CozeAgentConfig.getInstance());
+                tokenRef.set(PasswordSafe.getInstance().getPassword(new CredentialAttributes(SERVICE_NAME, USER_NAME)));
+            });
+        }
+    }
+
+    public static void setToken(String token) {
+        PasswordSafe.getInstance().setPassword(new CredentialAttributes(SERVICE_NAME, USER_NAME), token);
+        tokenRef.set(token);
+    }
+
+    public static String getToken() {
+        return tokenRef.get();
+    }
+
+    public static CozeAgentConfig getConfig() {
+        return configRef.get();
+    }
+
     @Override
     public boolean isGenerateModelSupported(String modelType) {
+        if(!initialized.get()) {
+            init();
+            return false;
+        }
+
+        if(configRef.get() == null || tokenRef.get() == null) {
+            return false;
+        }
+
         //Get agent config
-        CozeAgentConfig config = CozeAgentConfig.getInstance();
+        CozeAgentConfig config = configRef.get();
+        if(config.getSite() == null || config.getSite().trim().isEmpty()) {
+            show("Coze Site");
+            return false;
+        }
+
+        if(getToken() == null || getToken().trim().isEmpty()) {
+            show("Coze Token");
+            return false;
+        }
+
         apiUrl = getApiUrl(config.getSite());
-        token = config.getToken();
 
         this.modelType = modelType;
-        if(XUNIT.equals(modelType)) {
-            botId = config.getXunitBotId();
-        } else if(XSTATE.equals(modelType)) {
-            botId = config.getXstateBotId();
-        } else if(XDECISION.equals(modelType)) {
-            botId = config.getXdecisionBotId();
-        } else if(XBEHAVIOR.equals(modelType)) {
-            botId = config.getXbehaviorBotId();
-        } else if(XFLOW.equals(modelType)) {
-            botId = config.getXflowBotId();
-        } else
-            botId = null;
+        switch (modelType) {
+            case XUNIT:
+                botId = config.getXunitBotId();
+                break;
+            case XSTATE:
+                botId = config.getXstateBotId();
+                break;
+            case XDECISION:
+                botId = config.getXdecisionBotId();
+                break;
+            case XBEHAVIOR:
+                botId = config.getXbehaviorBotId();
+                break;
+            case XFLOW:
+                botId = config.getXflowBotId();
+                break;
+            default:
+                botId = null;
+                break;
+        }
 
-        return botId != null;
+        if(botId == null || botId.trim().isEmpty()) {
+            show(modelType);
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -91,6 +162,43 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
             generateWithStreamMode(description, callback);
         else
             generateWithoutStreamMode(description, callback);
+    }
+
+    private void show(String configItem) {
+        if(notified.contains(configItem))
+            return;
+
+        Project project;
+        Project[] projects = ProjectManager.getInstance().getOpenProjects();
+        if (projects.length == 0)
+            return;
+
+        project = projects[0];
+        Notification notification = getNotification(configItem);
+        notification.setImportant(false);
+        Notifications.Bus.notify(notification, project);
+
+        notified.add(configItem);
+    }
+
+    private  Notification getNotification(String configItem) {
+        String content = configItem + " is not configured";//.<br> <a href="action:Xross.TokenBot.Wizard">Agent Configuration Wizard</a>
+
+        // 创建通知对象
+        Notification notification = new Notification(
+                "Xross.Notification.Group",
+                "Agent Configuration Incomplete",
+                content,
+                NotificationType.INFORMATION
+        );
+
+        notification.addAction(new AnAction("Agent Configuration Wizard") {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                new CreateAgentWizardAction().actionPerformed(e);
+            }
+        });
+        return notification;
     }
 
     private void generateWithStreamMode(String description, Consumer<String> callback) {
@@ -206,7 +314,7 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
 
     private void setHeader(HttpRequestBase httpRequest) {
         httpRequest.setHeader("Content-Type", "application/json");
-        httpRequest.setHeader("Authorization", TOKEN_HEADER + token);
+        httpRequest.setHeader("Authorization", TOKEN_HEADER + tokenRef.get());
         httpRequest.setHeader("Accept-Charset", "UTF-8");
         httpRequest.setHeader("Accept", "text/xml; charset=UTF-8");
     }

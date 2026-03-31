@@ -196,13 +196,13 @@ public class CreateAgentWizard extends DialogWrapper implements CozeConstants{
     }
 
     private void loadCurrentConfig() {
-        CozeAgentConfig config = CozeAgentConfig.getInstance();
+        CozeAgentConfig config = CozeGenerateModelExtension.getConfig();
 
         if (config.getSite() != null) {
             siteCombo.setSelectedItem(config.getSite());
         }
-        if (config.getToken() != null) {
-            tokenField.setText(config.getToken());
+        if (CozeGenerateModelExtension.getToken() != null) {
+            tokenField.setText(CozeGenerateModelExtension.getToken());
         }
         if (config.getSpaceId() != null) {
             spaceIdCombo.setSelectedItem(config.getSpaceId());
@@ -251,26 +251,26 @@ public class CreateAgentWizard extends DialogWrapper implements CozeConstants{
             return;
         }
 
-        CozeAgentConfig config = CozeAgentConfig.getInstance();
+        CozeAgentConfig config = CozeGenerateModelExtension.getConfig();
         // 在创建时获取复选框的状态
         if(unitCheckBox.isSelected()) {
-            createBot(spaceId, XROSS_UNIT, unitCreationStatus, id -> config.setXunitBotId(id));
+            createBot(spaceId, XROSS_UNIT, unitCreationStatus, config::setXunitBotId);
         }
 
         if(decisionCheckBox.isSelected()) {
-            createBot(spaceId, XROSS_DECISION, decisionCreationStatus, id -> config.setXdecisionBotId(id));
+            createBot(spaceId, XROSS_DECISION, decisionCreationStatus, config::setXdecisionBotId);
         }
 
         if(stateCheckBox.isSelected()) {
-            createBot(spaceId, XROSS_STATE, stateCreationStatus, id -> config.setXstateBotId(id));
+            createBot(spaceId, XROSS_STATE, stateCreationStatus, config::setXstateBotId);
         }
 
         if(behaviorCheckBox.isSelected()) {
-            createBot(spaceId, XROSS_BEHAVIOR, behaviorCreationStatus, id -> config.setXbehaviorBotId(id));
+            createBot(spaceId, XROSS_BEHAVIOR, behaviorCreationStatus, config::setXbehaviorBotId);
         }
 
         if(flowCheckBox.isSelected()) {
-            createBot(spaceId, XROSS_FLOW, flowCreationStatus, id -> config.setXflowBotId(id));
+            createBot(spaceId, XROSS_FLOW, flowCreationStatus, config::setXflowBotId);
         }
     }
 
@@ -313,12 +313,12 @@ public class CreateAgentWizard extends DialogWrapper implements CozeConstants{
     }
 
     private void saveConfig() {
-        CozeAgentConfig config = CozeAgentConfig.getInstance();
+        CozeAgentConfig config = CozeGenerateModelExtension.getConfig();
 
         config.setSite((String) siteCombo.getSelectedItem());
-        config.setToken(tokenField.getText());
         config.setSpaceId((String) spaceIdCombo.getSelectedItem());
 
+        CozeGenerateModelExtension.setToken(tokenField.getText().trim());
         // botId 在创建时已经保存
     }
 }
