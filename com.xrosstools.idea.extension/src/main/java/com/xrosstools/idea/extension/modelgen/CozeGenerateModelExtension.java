@@ -70,13 +70,9 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
 
     private static Set<String> notified = new HashSet<>();
 
-    private void init() {
+    private static void init() {
         if(!initialized.get()) {
-            initialized.set(true);
-            ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                configRef.set(CozeAgentConfig.getInstance());
-                tokenRef.set(PasswordSafe.getInstance().getPassword(new CredentialAttributes(SERVICE_NAME, USER_NAME)));
-            });
+            ApplicationManager.getApplication().executeOnPooledThread(CozeGenerateModelExtension::_init);
         }
     }
 
@@ -86,19 +82,26 @@ public class CozeGenerateModelExtension implements CozeConstants, GenerateModelE
     }
 
     public static String getToken() {
+        _init();
         return tokenRef.get();
     }
 
     public static CozeAgentConfig getConfig() {
+        _init();
         return configRef.get();
+    }
+
+    private static void _init() {
+        if(!initialized.get()) {
+            configRef.set(CozeAgentConfig.getInstance());
+            tokenRef.set(PasswordSafe.getInstance().getPassword(new CredentialAttributes(SERVICE_NAME, USER_NAME)));
+            initialized.set(true);
+        }
     }
 
     @Override
     public boolean isGenerateModelSupported(String modelType) {
-        if(!initialized.get()) {
-            init();
-            return false;
-        }
+        init();
 
         if(configRef.get() == null || tokenRef.get() == null) {
             return false;
